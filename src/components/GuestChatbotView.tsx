@@ -8,7 +8,8 @@ import {
   SUPPORTED_LANGUAGES,
   SupportedLanguage,
   getDefaultGreeting,
-  getLocalizedPrompts
+  getLocalizedPrompts,
+  getLocalizedUI
 } from "../data/hotelData";
 import {
   Send,
@@ -315,6 +316,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
   const myRoomTickets = activeTickets.filter(t => t.roomNumber === roomNumber);
 
   const samplePrompts = getLocalizedPrompts(selectedLanguage);
+  const ui = getLocalizedUI(selectedLanguage);
 
   return (
     <div className="space-y-6">
@@ -324,17 +326,17 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-700 rounded-full border border-indigo-200 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Concierge Virtual 24/7 Ativo
+              {ui.onlineBadge}
             </span>
             <span className="text-xs text-gray-500 font-medium hidden sm:inline-block">
-              IA Autonóma Integrada • Multilíngue
+              {ui.todayBadge}
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
             {hotelProfile.name}
           </h1>
           <p className="text-xs sm:text-sm text-gray-600">
-            {hotelProfile.tagline} • Apoio instantâneo a comodidades, governança e restauração.
+            {hotelProfile.tagline}
           </p>
         </div>
 
@@ -372,7 +374,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1">
-                <span className="text-gray-500 text-[10px] uppercase font-bold">Quarto</span>
+                <span className="text-gray-500 text-[10px] uppercase font-bold">{ui.roomLabel}</span>
                 <select
                   value={roomNumber}
                   onChange={(e) => setRoomNumber(e.target.value)}
@@ -398,7 +400,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
             title="Ativar/Desativar Voz (Text-to-Speech)"
           >
             {ttsEnabled ? <Volume2 className="w-3.5 h-3.5 text-indigo-600" /> : <VolumeX className="w-3.5 h-3.5 text-gray-400" />}
-            <span className="hidden sm:inline text-xs">{ttsEnabled ? "Voz Ativa" : "Voz Mudo"}</span>
+            <span className="hidden sm:inline text-xs">{ttsEnabled ? ui.voiceActive : ui.voiceMute}</span>
           </button>
 
           {/* Reset Chat */}
@@ -419,7 +421,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
         <aside className="lg:col-span-3 space-y-4">
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Serviços Rápidos do Quarto
+              {ui.quickServices}
             </h2>
 
             <div className="space-y-2">
@@ -433,7 +435,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     <Wifi className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-amber-950">Acesso Wi-Fi & QR</p>
+                    <p className="text-xs font-bold text-amber-950">{ui.wifiAccess}</p>
                     <p className="text-[11px] text-amber-800 font-medium">Rede {hotelProfile.wifiSSID}</p>
                   </div>
                 </div>
@@ -450,8 +452,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-900">Pedir Toalhas & Governança</p>
-                    <p className="text-[11px] text-gray-500">Entrega direta no quarto</p>
+                    <p className="text-xs font-bold text-gray-900">{ui.towelsHousekeeping}</p>
+                    <p className="text-[11px] text-gray-500">{ui.towelsSubtitle}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -467,8 +469,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-900">Solicitar Late Check-out</p>
-                    <p className="text-[11px] text-gray-500">Estender estadia até 14h/18h</p>
+                    <p className="text-xs font-bold text-gray-900">{ui.lateCheckout}</p>
+                    <p className="text-[11px] text-gray-500">{ui.lateCheckoutSubtitle}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -484,8 +486,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     <UtensilsCrossed className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-900">Menu de Room Service</p>
-                    <p className="text-[11px] text-gray-500">Pratos, vinhos e snacks 24h</p>
+                    <p className="text-xs font-bold text-gray-900">{ui.roomService}</p>
+                    <p className="text-[11px] text-gray-500">{ui.roomServiceSubtitle}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -493,7 +495,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
 
               {/* Call Reception */}
               <button
-                onClick={() => handleSendMessage("Como posso ligar para a receção ou pedir auxílio no quarto?")}
+                onClick={() => handleSendMessage(selectedLanguage === 'en' ? "How can I contact reception?" : selectedLanguage === 'es' ? "¿Cómo puedo contactar con recepción?" : selectedLanguage === 'fr' ? "Comment joindre la réception ?" : selectedLanguage === 'de' ? "Wie kann ich die Rezeption erreichen?" : "Como posso ligar para a receção ou pedir auxílio no quarto?")}
                 className="w-full text-left p-3 rounded-lg border border-gray-200 bg-gray-50 hover:bg-indigo-50 hover:border-indigo-200 transition-colors cursor-pointer flex items-center justify-between group"
               >
                 <div className="flex items-center gap-2.5">
@@ -501,8 +503,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     <PhoneCall className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-900">Receção & Emergência</p>
-                    <p className="text-[11px] text-gray-500">Extensão 9 / Suporte 24h</p>
+                    <p className="text-xs font-bold text-gray-900">{selectedLanguage === 'en' ? "Front Desk & Help" : selectedLanguage === 'es' ? "Recepción y Ayuda" : selectedLanguage === 'fr' ? "Réception & Aide" : selectedLanguage === 'de' ? "Rezeption & Hilfe" : "Receção & Apoio"}</p>
+                    <p className="text-[11px] text-gray-500">Ext. 9 • 24/7</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -515,7 +517,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                 onClick={onGoToDirectory}
                 className="w-full py-2 px-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <span>Ver Guia Completo do Hotel</span>
+                <span>{ui.hotelDirectory}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -526,16 +528,16 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-indigo-600" />
-                <span>Meus Pedidos Ativos</span>
+                <span>{ui.activeTickets}</span>
               </h3>
               <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
-                Quarto {roomNumber}
+                {ui.roomLabel} {roomNumber}
               </span>
             </div>
 
             {myRoomTickets.length === 0 ? (
               <p className="text-xs text-gray-500 italic py-2">
-                Nenhum pedido em aberto. Pode pedir toalhas, limpeza ou room service diretamente no chat.
+                {selectedLanguage === 'en' ? "No pending requests. You can request towels, cleaning, or room service in the chat." : selectedLanguage === 'es' ? "Sin solicitudes pendientes. Puede pedir toallas, limpieza o servicio de habitaciones en el chat." : selectedLanguage === 'fr' ? "Aucune demande en cours. Vous pouvez demander des serviettes ou le room service dans le chat." : selectedLanguage === 'de' ? "Keine offenen Anfragen. Sie können Handtücher oder Zimmerservice im Chat anfragen." : "Nenhum pedido em aberto. Pode pedir toalhas, limpeza ou room service diretamente no chat."}
               </p>
             ) : (
               <div className="space-y-2">
@@ -548,8 +550,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                         ticket.status === 'in_progress' ? 'bg-amber-100 text-amber-800' :
                         'bg-blue-100 text-blue-800'
                       }`}>
-                        {ticket.status === 'completed' ? 'Concluído' :
-                         ticket.status === 'in_progress' ? 'A Caminho' : 'Recebido'}
+                        {ticket.status === 'completed' ? 'OK' :
+                         ticket.status === 'in_progress' ? '...' : 'New'}
                       </span>
                     </div>
                     <p className="text-[11px] text-gray-500 truncate">{ticket.description}</p>
@@ -560,7 +562,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                   onClick={onGoToStaffDesk}
                   className="w-full text-center text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold pt-1 block cursor-pointer"
                 >
-                  Ver Painel da Receção &rarr;
+                  {ui.viewDeskBtn}
                 </button>
               </div>
             )}
@@ -582,7 +584,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                  <span className="text-[11px] text-gray-500 font-medium">HotelAI Online • Quarto {roomNumber}</span>
+                  <span className="text-[11px] text-gray-500 font-medium">{ui.onlineBadge} • {ui.roomLabel} {roomNumber}</span>
                 </div>
               </div>
             </div>
@@ -598,7 +600,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
           <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-slate-50">
             <div className="flex justify-center mb-2">
               <span className="px-3 py-1 bg-gray-200/80 text-gray-600 text-[10px] font-semibold rounded-full uppercase tracking-wider">
-                Hoje • Concierge Digital 24 Horas
+                {ui.todayBadge}
               </span>
             </div>
 
@@ -623,13 +625,13 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                       <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-indigo-900 bg-indigo-50/70 p-2 rounded-lg font-medium">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
-                          <span>Pedido registado: #{msg.ticketId}</span>
+                          <span>{ui.ticketRegistered} #{msg.ticketId}</span>
                         </span>
                         <button
                           onClick={onGoToStaffDesk}
                           className="text-[11px] text-indigo-600 hover:underline font-bold cursor-pointer"
                         >
-                          Ver no painel
+                          {ui.viewInDesk}
                         </button>
                       </div>
                     )}
@@ -641,14 +643,14 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     {!isUser && msg.grounded && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        <span>Verificado</span>
+                        <span>{ui.verifiedBadge}</span>
                       </span>
                     )}
 
                     {!isUser && msg.isEscalation && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                         <PhoneCall className="w-3 h-3 text-amber-600" />
-                        <span>Staff Notificado</span>
+                        <span>{ui.staffNotifiedBadge}</span>
                       </span>
                     )}
 
@@ -673,7 +675,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                     <span className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: "0ms" }}></span>
                     <span className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                     <span className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: "300ms" }}></span>
-                    <span className="text-xs text-gray-500 font-medium ml-1">O HotelAI está a consultar a base do hotel...</span>
+                    <span className="text-xs text-gray-500 font-medium ml-1">{ui.thinkingText}</span>
                   </div>
                 </div>
               </div>
@@ -685,7 +687,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
           <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 overflow-x-auto shrink-0">
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider pl-1">
-                Sugestões:
+                {ui.suggestionsTitle}
               </span>
               {samplePrompts.map((p, idx) => (
                 <button
@@ -728,7 +730,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder={isRecording ? "A ouvir a sua voz..." : "Escreva a sua dúvida ou pedido (ex: toalhas, Wi-Fi, pequeno-almoço)..."}
+                  placeholder={isRecording ? ui.listeningPlaceholder : ui.inputPlaceholder}
                   disabled={isLoading}
                   className="w-full h-11 bg-gray-100 border-none rounded-full px-5 text-xs sm:text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
                 />
@@ -744,7 +746,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
               {/* Direct Speed Dial to Reception */}
               <button
                 type="button"
-                onClick={() => handleSendMessage("Por favor, informe-me a extensão da receção para ligar do quarto.")}
+                onClick={() => handleSendMessage(selectedLanguage === 'en' ? "Please provide the front desk phone extension." : selectedLanguage === 'es' ? "¿Cuál es la extensión de recepción?" : selectedLanguage === 'fr' ? "Quel est le numéro de poste de la réception ?" : selectedLanguage === 'de' ? "Wie lautet die Durchwahl zur Rezeption?" : "Por favor, informe-me a extensão da receção para ligar do quarto.")}
                 className="p-2.5 bg-gray-50 border border-gray-200 rounded-full text-gray-500 hover:text-indigo-600 hover:border-indigo-200 transition-all cursor-pointer shrink-0"
                 title="Ligar para a receção (Extensão 9)"
               >
@@ -758,27 +760,27 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
         <aside className="lg:col-span-3 space-y-4">
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
-              Horários & Destaques
+              {selectedLanguage === 'en' ? "Schedule & Highlights" : selectedLanguage === 'es' ? "Horarios y Destacados" : selectedLanguage === 'fr' ? "Horaires & Points Clés" : selectedLanguage === 'de' ? "Zeiten & Highlights" : "Horários & Destaques"}
             </h3>
 
             {/* Wi-Fi Card */}
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-amber-800 uppercase tracking-widest">
-                  Rede Wi-Fi Oficial
+                  {selectedLanguage === 'en' ? "Official Wi-Fi Network" : selectedLanguage === 'es' ? "Red Wi-Fi Oficial" : selectedLanguage === 'fr' ? "Réseau Wi-Fi Officiel" : selectedLanguage === 'de' ? "Offizielles WLAN" : "Rede Wi-Fi Oficial"}
                 </span>
                 <button
                   onClick={() => setShowWifiModal(true)}
                   className="text-[10px] text-amber-900 font-bold hover:underline cursor-pointer"
                 >
-                  Ver QR
+                  {selectedLanguage === 'en' ? "View QR" : selectedLanguage === 'es' ? "Ver QR" : selectedLanguage === 'fr' ? "Voir QR" : selectedLanguage === 'de' ? "QR anzeigen" : "Ver QR"}
                 </button>
               </div>
               <p className="text-xs font-mono font-bold text-amber-950">
                 SSID: {hotelProfile.wifiSSID}
               </p>
               <p className="text-[11px] text-amber-900">
-                Acesso gratuito 500Mbps sem senha.
+                {selectedLanguage === 'en' ? "Free 500Mbps fast access without password." : selectedLanguage === 'es' ? "Acceso gratuito 500Mbps sin contraseña." : selectedLanguage === 'fr' ? "Accès haut débit 500 Mbps gratuit sans mot de passe." : selectedLanguage === 'de' ? "Kostenloses 500Mbit/s Internet ohne Passwort." : "Acesso gratuito 500Mbps sem senha."}
               </p>
             </div>
 
@@ -790,7 +792,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Check-in / Check-out</p>
-                  <p className="text-[11px] text-gray-500">In: 15:00 • Out: 12:00 (Late sob pedido)</p>
+                  <p className="text-[11px] text-gray-500">In: {hotelProfile.checkInTime} • Out: {hotelProfile.checkOutTime}</p>
                 </div>
               </div>
 
@@ -799,7 +801,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                   <Coffee className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Pequeno-Almoço</p>
+                  <p className="font-semibold text-gray-900">{selectedLanguage === 'en' ? "Breakfast" : selectedLanguage === 'es' ? "Desayuno" : selectedLanguage === 'fr' ? "Petit-déjeuner" : selectedLanguage === 'de' ? "Frühstück" : "Pequeno-Almoço"}</p>
                   <p className="text-[11px] text-gray-500">{hotelProfile.breakfastHours}</p>
                 </div>
               </div>
@@ -809,7 +811,7 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                   <Waves className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Piscinas & Spa</p>
+                  <p className="font-semibold text-gray-900">{selectedLanguage === 'en' ? "Pool & Spa" : selectedLanguage === 'es' ? "Piscinas y Spa" : selectedLanguage === 'fr' ? "Piscine & Spa" : selectedLanguage === 'de' ? "Pool & Spa" : "Piscinas & Spa"}</p>
                   <p className="text-[11px] text-gray-500">{hotelProfile.poolHours}</p>
                 </div>
               </div>
@@ -819,8 +821,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
                   <Car className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Estacionamento & EV</p>
-                  <p className="text-[11px] text-gray-500">Piso -2 (Acesso 24h gratuito)</p>
+                  <p className="font-semibold text-gray-900">{selectedLanguage === 'en' ? "Parking & EV Charger" : selectedLanguage === 'es' ? "Parking y Carga EV" : selectedLanguage === 'fr' ? "Parking & Bornes EV" : selectedLanguage === 'de' ? "Parkplatz & E-Ladestation" : "Estacionamento & EV"}</p>
+                  <p className="text-[11px] text-gray-500">{selectedLanguage === 'en' ? "Level -2 • 24h Free" : selectedLanguage === 'es' ? "Planta -2 • 24h Gratuito" : selectedLanguage === 'fr' ? "Niveau -2 • 24h/24 Gratuit" : selectedLanguage === 'de' ? "Etage -2 • 24h Kostenfrei" : "Piso -2 • 24h Gratuito"}</p>
                 </div>
               </div>
             </div>
@@ -830,10 +832,10 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
               <div className="p-3 bg-rose-50 rounded-lg border border-rose-100 text-xs text-rose-950 space-y-1">
                 <span className="font-bold flex items-center gap-1 text-rose-900">
                   <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                  Contacto da Receção
+                  {selectedLanguage === 'en' ? "Reception Contact" : selectedLanguage === 'es' ? "Contacto de Recepción" : selectedLanguage === 'fr' ? "Contact Réception" : selectedLanguage === 'de' ? "Kontakt Rezeption" : "Contacto da Receção"}
                 </span>
                 <p className="text-[11px]">
-                  Marque <strong>9</strong> no telefone do quarto ou dirija-se ao Piso 0.
+                  {selectedLanguage === 'en' ? "Dial 9 on the room telephone or visit Floor 0." : selectedLanguage === 'es' ? "Marque 9 en el teléfono de la habitación o visite la Planta 0." : selectedLanguage === 'fr' ? "Composez le 9 sur le téléphone de la chambre ou présentez-vous au niveau 0." : selectedLanguage === 'de' ? "Wählen Sie die 9 auf dem Zimmertelefon oder gehen Sie zu Ebene 0." : "Marque 9 no telefone do quarto ou dirija-se ao Piso 0."}
                 </p>
               </div>
             </div>

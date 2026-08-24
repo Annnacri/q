@@ -185,6 +185,186 @@ export function getLocalizedPrompts(lang: SupportedLanguage): LocalizedPrompt[] 
   }
 }
 
+export interface LocalizedUIStrings {
+  quickServices: string;
+  wifiAccess: string;
+  wifiSubtitle: string;
+  towelsHousekeeping: string;
+  towelsSubtitle: string;
+  lateCheckout: string;
+  lateCheckoutSubtitle: string;
+  roomService: string;
+  roomServiceSubtitle: string;
+  hotelDirectory: string;
+  hotelDirectorySubtitle: string;
+  activeTickets: string;
+  inputPlaceholder: string;
+  listeningPlaceholder: string;
+  suggestionsTitle: string;
+  voiceActive: string;
+  voiceMute: string;
+  todayBadge: string;
+  thinkingText: string;
+  verifiedBadge: string;
+  staffNotifiedBadge: string;
+  ticketRegistered: string;
+  viewInDesk: string;
+  viewDeskBtn: string;
+  roomLabel: string;
+  onlineBadge: string;
+}
+
+export function getLocalizedUI(lang: SupportedLanguage): LocalizedUIStrings {
+  switch (lang) {
+    case "en":
+      return {
+        quickServices: "Quick Room Services",
+        wifiAccess: "Wi-Fi Access & QR",
+        wifiSubtitle: "Network info & login",
+        towelsHousekeeping: "Request Towels & Cleaning",
+        towelsSubtitle: "Direct delivery to room",
+        lateCheckout: "Request Late Check-out",
+        lateCheckoutSubtitle: "Extend stay until 2PM/6PM",
+        roomService: "Room Service Menu",
+        roomServiceSubtitle: "Food, snacks & drinks",
+        hotelDirectory: "Hotel Directory & Contacts",
+        hotelDirectorySubtitle: "Extensions, spa & times",
+        activeTickets: "My Active Requests",
+        inputPlaceholder: "Type your question or request (e.g., Wi-Fi, towels, breakfast, checkout)...",
+        listeningPlaceholder: "Listening to your voice...",
+        suggestionsTitle: "Suggestions:",
+        voiceActive: "Voice On",
+        voiceMute: "Voice Off",
+        todayBadge: "Today • 24/7 Digital Concierge",
+        thinkingText: "HotelAI is checking hotel records...",
+        verifiedBadge: "Verified",
+        staffNotifiedBadge: "Staff Notified",
+        ticketRegistered: "Request logged:",
+        viewInDesk: "View in desk",
+        viewDeskBtn: "View Reception Desk →",
+        roomLabel: "Room",
+        onlineBadge: "Online Concierge"
+      };
+    case "es":
+      return {
+        quickServices: "Servicios Rápidos de Habitación",
+        wifiAccess: "Acceso Wi-Fi y QR",
+        wifiSubtitle: "Red y conexión",
+        towelsHousekeeping: "Pedir Toallas y Limpieza",
+        towelsSubtitle: "Entrega directa a la habitación",
+        lateCheckout: "Solicitar Late Check-out",
+        lateCheckoutSubtitle: "Extender estancia hasta 14h/18h",
+        roomService: "Carta de Room Service",
+        roomServiceSubtitle: "Comida, aperitivos y bebidas",
+        hotelDirectory: "Directorio del Hotel",
+        hotelDirectorySubtitle: "Extensiones, spa y horarios",
+        activeTickets: "Mis Solicitudes Activas",
+        inputPlaceholder: "Escriba su consulta o solicitud (ej: Wi-Fi, toallas, desayuno, salida)...",
+        listeningPlaceholder: "Escuchando su voz...",
+        suggestionsTitle: "Sugerencias:",
+        voiceActive: "Voz Activa",
+        voiceMute: "Voz Mudo",
+        todayBadge: "Hoy • Concierge Digital 24h",
+        thinkingText: "HotelAI está consultando la información del hotel...",
+        verifiedBadge: "Verificado",
+        staffNotifiedBadge: "Personal Notificado",
+        ticketRegistered: "Solicitud registrada:",
+        viewInDesk: "Ver en panel",
+        viewDeskBtn: "Ver Panel de Recepción →",
+        roomLabel: "Habitación",
+        onlineBadge: "Concierge Online"
+      };
+    case "fr":
+      return {
+        quickServices: "Services Rapides en Chambre",
+        wifiAccess: "Accès Wi-Fi & QR Code",
+        wifiSubtitle: "Réseau et connexion",
+        towelsHousekeeping: "Demander Serviettes & Ménage",
+        towelsSubtitle: "Livraison directe en chambre",
+        lateCheckout: "Demander Départ Tardif",
+        lateCheckoutSubtitle: "Prolonger le séjour jusqu'à 14h/18h",
+        roomService: "Menu Room Service",
+        roomServiceSubtitle: "Plats, snacks et boissons",
+        hotelDirectory: "Guide & Contacts de l'Hôtel",
+        hotelDirectorySubtitle: "Postes, spa et horaires",
+        activeTickets: "Mes Demandes Actives",
+        inputPlaceholder: "Écrivez votre question ou demande (ex : Wi-Fi, serviettes, petit-déjeuner)...",
+        listeningPlaceholder: "Écoute de votre voix...",
+        suggestionsTitle: "Suggestions :",
+        voiceActive: "Voix Activée",
+        voiceMute: "Voix Muette",
+        todayBadge: "Aujourd'hui • Concierge Digital 24/7",
+        thinkingText: "HotelAI consulte les informations de l'hôtel...",
+        verifiedBadge: "Vérifié",
+        staffNotifiedBadge: "Personnel Notifié",
+        ticketRegistered: "Demande enregistrée :",
+        viewInDesk: "Voir au tableau",
+        viewDeskBtn: "Voir le Bureau de Réception →",
+        roomLabel: "Chambre",
+        onlineBadge: "Concierge En Ligne"
+      };
+    case "de":
+      return {
+        quickServices: "Schnellservice für Ihr Zimmer",
+        wifiAccess: "WLAN-Zugang & QR-Code",
+        wifiSubtitle: "Netzwerk & Anmeldung",
+        towelsHousekeeping: "Handtücher & Reinigung",
+        towelsSubtitle: "Direkte Lieferung auf das Zimmer",
+        lateCheckout: "Später Check-out Anfrage",
+        lateCheckoutSubtitle: "Aufenthalt bis 14:00/18:00 Uhr verlängern",
+        roomService: "Zimmerservice-Menü",
+        roomServiceSubtitle: "Speisen, Snacks & Getränke",
+        hotelDirectory: "Hotelverzeichnis & Kontakte",
+        hotelDirectorySubtitle: "Durchwahlen, Spa & Zeiten",
+        activeTickets: "Meine aktiven Anfragen",
+        inputPlaceholder: "Geben Sie Ihre Frage oder Anfrage ein (z. B. WLAN, Handtücher, Frühstück)...",
+        listeningPlaceholder: "Spracherkennung aktiv...",
+        suggestionsTitle: "Vorschläge:",
+        voiceActive: "Sprache Ein",
+        voiceMute: "Sprache Aus",
+        todayBadge: "Heute • 24/7 Digitaler Concierge",
+        thinkingText: "HotelAI prüft die Hotelinformationen...",
+        verifiedBadge: "Geprüft",
+        staffNotifiedBadge: "Personal Benachrichtigt",
+        ticketRegistered: "Anfrage erfasst:",
+        viewInDesk: "In Übersicht anzeigen",
+        viewDeskBtn: "Zur Rezeptionsübersicht →",
+        roomLabel: "Zimmer",
+        onlineBadge: "Online Concierge"
+      };
+    case "pt":
+    default:
+      return {
+        quickServices: "Serviços Rápidos do Quarto",
+        wifiAccess: "Acesso Wi-Fi & QR",
+        wifiSubtitle: `Rede ${lang}`,
+        towelsHousekeeping: "Pedir Toalhas & Governança",
+        towelsSubtitle: "Entrega direta no quarto",
+        lateCheckout: "Solicitar Late Check-out",
+        lateCheckoutSubtitle: "Estender estadia até 14h/18h",
+        roomService: "Menu de Room Service",
+        roomServiceSubtitle: "Comida, snacks e bebidas",
+        hotelDirectory: "Diretório & Contactos do Hotel",
+        hotelDirectorySubtitle: "Ramais, spa e horários",
+        activeTickets: "Meus Pedidos Ativos",
+        inputPlaceholder: "Escreva a sua dúvida ou pedido (ex: toalhas, Wi-Fi, pequeno-almoço)...",
+        listeningPlaceholder: "A ouvir a sua voz...",
+        suggestionsTitle: "Sugestões:",
+        voiceActive: "Voz Ativa",
+        voiceMute: "Voz Mudo",
+        todayBadge: "Hoje • Concierge Digital 24 Horas",
+        thinkingText: "O HotelAI está a consultar a base do hotel...",
+        verifiedBadge: "Verificado",
+        staffNotifiedBadge: "Staff Notificado",
+        ticketRegistered: "Pedido registado:",
+        viewInDesk: "Ver no painel",
+        viewDeskBtn: "Ver Painel da Receção →",
+        roomLabel: "Quarto",
+        onlineBadge: "HotelAI Online"
+      };
+  }
+}
+
 export const sampleMenuItems: MenuItem[] = [
   {
     id: "menu-1",

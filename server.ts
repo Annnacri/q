@@ -153,7 +153,7 @@ app.post("/api/chat", async (req, res) => {
     }
 
     const languageNames: Record<string, string> = {
-      pt: "Portuguese (Português)",
+      pt: "Portuguese (Português de Portugal)",
       en: "English",
       es: "Spanish (Español)",
       fr: "French (Français)",
@@ -163,11 +163,20 @@ app.post("/api/chat", async (req, res) => {
 
     const basePrompt = customPrompt || `You are HotelAI Concierge, an intelligent, helpful, multilingual and elegant 24/7 AI guest assistant for ${hotelName}.
 
+CRITICAL LANGUAGE REQUIREMENT:
+The active guest interaction language is explicitly set to: ${currentLangName} (Language Code: "${language}").
+YOU MUST RESPOND EXCLUSIVELY AND FLUENTLY IN ${currentLangName.toUpperCase()}!
+Even if the Knowledge Base is written in Portuguese or another language, or the user asks in another dialect, TRANSLATE all information, prices, schedules, and details so that your entire reply is delivered in natural, polite ${currentLangName}.
+- If language is "en": Reply 100% in polished English.
+- If language is "es": Reply 100% in polite Spanish (Español).
+- If language is "fr": Reply 100% in elegant French (Français).
+- If language is "de": Reply 100% in polite German (Deutsch).
+- If language is "pt": Reply 100% in European Portuguese (Português).
+
 HOTEL CONTEXT:
 - Hotel Name: ${hotelName}
 - Current Guest Room: ${roomNumber || "Quarto do Hóspede"}
 - Guest Name: ${guestName || "Estimado Hóspede"}
-- Configured Primary Language: ${currentLangName} (${language})
 - Ticket Status: ${createdTicketRecord ? `Um pedido de serviço formal (Ticket #${createdTicketRecord.id}: ${createdTicketRecord.title}) foi registado internamente para a equipa.` : "Nenhum ticket aberto."}
 
 APPROVED KNOWLEDGE BASE:
@@ -179,13 +188,8 @@ CORE DIRECTIVES:
 1. Accurately answer questions about hotel facilities, Wi-Fi, breakfast & dining hours, spa & pool, check-in/out, room amenities, pet policy, parking, EV charging, luggage, and local attractions.
 2. Ground all answers 100% in the approved Knowledge Base above. Never invent prices, times, or unlisted policies.
 3. If information is not in the knowledge base, state politely that you don't have that detail and invite the guest to connect with the reception (extension 9).
-4. If the guest is requesting physical staff assistance (e.g. extra towels, pillows, maintenance, late check-out authorization, baggage assistance, food order), reassure the guest warmly that their request has been logged / forwarded to our team, and let them know the reception is also at their service at extension 9.
-5. MULTILINGUAL BEHAVIOR:
-   - If the guest writes in English, reply in natural, polished English.
-   - If the guest writes in Portuguese, reply in polite European Portuguese.
-   - If the guest writes in Spanish, French, German, Italian, or other languages, reply fluently in that exact same language.
-   - If the conversation begins with default greetings, default to ${currentLangName}.
-6. Maintain a warm, polite, 5-star luxury hospitality tone. Keep answers concise, crystal clear, and easy to read on mobile devices.`;
+4. If the guest is requesting physical staff assistance (e.g. extra towels, pillows, maintenance, late check-out authorization, baggage assistance, food order), reassure the guest warmly in ${currentLangName} that their request has been logged / forwarded to our team, and let them know the reception is also at their service at extension 9.
+5. Maintain a warm, polite, 5-star luxury hospitality tone. Keep answers concise, crystal clear, and easy to read on mobile devices.`;
 
     if (ai) {
       try {
@@ -370,6 +374,79 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
     }
     let msg = "O horário de check-out é até às 12:00. Caso pretenda guardar a sua bagagem após a saída, dispomos de um serviço de bengaleiro gratuito junto à receção 24h.";
     if (isEn) msg = "Standard check-out is until 12:00 PM. Luggage storage is available free of charge at the 24/7 front desk.";
+    if (isEs) msg = "El horario de check-out es hasta las 12:00. Disponemos de consigna de equipaje gratuita 24h en la recepción.";
+    if (isFr) msg = "L'heure de départ est jusqu'à 12h00. Une bagagerie gratuite est disponible 24h/24 à la réception.";
+    if (isDe) msg = "Der Check-out ist bis 12:00 Uhr möglich. Eine kostenlose Gepäckaufbewahrung steht an der 24h-Rezeption zur Verfügung.";
+    return {
+      text: msg,
+      isEscalation: false,
+      grounded: true
+    };
+  }
+
+  // Check-in
+  if (lower.includes("check-in") || lower.includes("checkin") || lower.includes("entrada") || lower.includes("llegada") || lower.includes("arrivée") || lower.includes("anreise")) {
+    let msg = "O check-in está disponível a partir das 15:00. A nossa receção está aberta 24 horas por dia para o receber.";
+    if (isEn) msg = "Check-in begins at 3:00 PM (15:00). Our reception desk is open 24/7 to welcome you.";
+    if (isEs) msg = "El registro de entrada (check-in) está disponible a partir de las 15:00. Recepción abierta 24h.";
+    if (isFr) msg = "L'enregistrement (check-in) est disponible à partir de 15h00. Notre réception est ouverte 24h/24.";
+    if (isDe) msg = "Der Check-in ist ab 15:00 Uhr möglich. Unsere Rezeption ist rund um die Uhr für Sie da.";
+    return {
+      text: msg,
+      isEscalation: false,
+      grounded: true
+    };
+  }
+
+  // Pool & Spa
+  if (lower.includes("piscina") || lower.includes("pool") || lower.includes("spa") || lower.includes("jacuzzi") || lower.includes("sauna") || lower.includes("schwimmbad")) {
+    let msg = "A piscina exterior e a piscina interior aquecida estão abertas diariamente das 08:00 às 20:00 (Piso -1). O Spa Thalasso funciona das 09:00 às 19:30. As toalhas de piscina são disponibilizadas gratuitamente.";
+    if (isEn) msg = "The outdoor pool and heated indoor pool are open daily from 08:00 to 20:00 (Floor -1). The Thalasso Spa is open from 09:00 to 19:30. Complimentary pool towels are provided.";
+    if (isEs) msg = "La piscina exterior y la piscina climatizada están abiertas todos los días de 08:00 a 20:00 (Planta -1). El Thalasso Spa abre de 09:00 a 19:30.";
+    if (isFr) msg = "La piscine extérieure et le bassin chauffé sont ouverts tous les jours de 08h00 à 20h00 (Niveau -1). Le Spa Thalasso est ouvert de 09h00 à 19h30.";
+    if (isDe) msg = "Der Außenpool und das beheizte Hallenbad sind täglich von 08:00 bis 20:00 Uhr geöffnet (Ebene -1). Das Thalasso Spa ist von 09:00 bis 19:30 Uhr geöffnet.";
+    return {
+      text: msg,
+      isEscalation: false,
+      grounded: true
+    };
+  }
+
+  // Parking & EV
+  if (lower.includes("estacionamento") || lower.includes("parque") || lower.includes("aparcamiento") || lower.includes("parking") || lower.includes("carro") || lower.includes("car") || lower.includes("ev") || lower.includes("elétrico") || lower.includes("eléctrico") || lower.includes("électrique") || lower.includes("laden")) {
+    let msg = "Dispomos de estacionamento subterrâneo privativo e gratuito com acesso 24h no Piso -2 (acesso com o cartão do quarto). Inclui 6 postos de carregamento elétrico ultrarrápido.";
+    if (isEn) msg = "We offer complimentary 24/7 private underground parking on Floor -2 (keycard access). It includes 6 ultra-fast EV charging stations.";
+    if (isEs) msg = "Disponemos de aparcamiento subterráneo privado y gratuito 24h en la Planta -2, equipado con 6 cargadores rápidos para vehículos eléctricos.";
+    if (isFr) msg = "Nous proposons un parking souterrain sécurisé gratuit accessible 24h/24 au Niveau -2, avec 6 bornes de recharge pour véhicules électriques.";
+    if (isDe) msg = "Wir bieten eine kostenlose private Tiefgarage mit 24h-Zugang auf Ebene -2, inklusive 6 Schnellladestationen für Elektroautos.";
+    return {
+      text: msg,
+      isEscalation: false,
+      grounded: true
+    };
+  }
+
+  // Pets
+  if (lower.includes("animal") || lower.includes("animais") || lower.includes("pet") || lower.includes("cão") || lower.includes("gato") || lower.includes("mascota") || lower.includes("chien") || lower.includes("haustier") || lower.includes("dog") || lower.includes("cat")) {
+    let msg = "Aceitamos animais de estimação de pequeno porte (até 15 kg) em quartos designados 'Pet Friendly' mediante taxa de 25€/noite (inclui cama e snacks).";
+    if (isEn) msg = "We welcome small pets (up to 15 kg) in designated 'Pet Friendly' rooms for €25/night (includes dedicated pet bed, food bowls, and welcome snacks).";
+    if (isEs) msg = "Aceptamos mascotas de hasta 15 kg en habitaciones 'Pet Friendly' por una tarifa de 25€/noche (incluye cama y snacks).";
+    if (isFr) msg = "Les animaux de compagnie jusqu'à 15 kg sont acceptés dans les chambres 'Pet Friendly' (25€/nuit, lit et friandises inclus).";
+    if (isDe) msg = "Kleine Haustiere (bis 15 kg) sind in ausgewählten Zimmern für 25 €/Nacht willkommen (inklusive Haustierbett und Snacks).";
+    return {
+      text: msg,
+      isEscalation: false,
+      grounded: true
+    };
+  }
+
+  // Room Service / Menu
+  if (lower.includes("room service") || lower.includes("serviço de quarto") || lower.includes("servicio de habitaciones") || lower.includes("zimmerservice") || lower.includes("menu") || lower.includes("cardápio") || lower.includes("carta") || lower.includes("speisekarte") || lower.includes("comida") || lower.includes("food") || lower.includes("nourriture") || lower.includes("essen")) {
+    let msg = "O Room Service funciona 24 horas (menu completo das 11:00 às 23:00 com hambúrgueres gourmet, peixe fresco, sobremesas e vinhos). Pode pedir no chat ou marcar 7.";
+    if (isEn) msg = "Room Service operates 24/7 (full menu from 11:00 AM to 11:00 PM including gourmet burgers, fresh fish, desserts, and fine wines). Dial extension 7 or ask me here.";
+    if (isEs) msg = "El servicio de habitaciones funciona 24h (menú completo de 11:00 a 23:00 con hamburguesas gourmet, pescado fresco y vinos). Marque la extensión 7.";
+    if (isFr) msg = "Le service d'étage est ouvert 24h/24 (carte complète de 11h00 à 23h00 avec burgers gourmets, poisson frais et vins). Composez le poste 7.";
+    if (isDe) msg = "Der Zimmerservice steht Ihnen 24 Stunden zur Verfügung (vollständige Karte von 11:00 bis 23:00 Uhr mit Gourmet-Burgern, frischem Fisch und Weinen). Durchwahl 7.";
     return {
       text: msg,
       isEscalation: false,
