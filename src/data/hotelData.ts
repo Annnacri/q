@@ -1,7 +1,27 @@
+export type SupportedLanguage = "pt" | "en" | "es" | "fr" | "de";
+
+export interface LanguageOption {
+  code: SupportedLanguage;
+  label: string;
+  flag: string;
+  nativeName: string;
+  locale: string;
+}
+
+export const SUPPORTED_LANGUAGES: LanguageOption[] = [
+  { code: "pt", label: "Português", flag: "🇵🇹", nativeName: "Português", locale: "pt-PT" },
+  { code: "en", label: "English", flag: "🇬🇧", nativeName: "English", locale: "en-US" },
+  { code: "es", label: "Español", flag: "🇪🇸", nativeName: "Español", locale: "es-ES" },
+  { code: "fr", label: "Français", flag: "🇫🇷", nativeName: "Français", locale: "fr-FR" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪", nativeName: "Deutsch", locale: "de-DE" },
+];
+
 export interface HotelProfile {
   name: string;
   stars: number;
   tagline: string;
+  defaultLanguage: SupportedLanguage;
+  customGreetings?: Partial<Record<SupportedLanguage, string>>;
   address: string;
   phone: string;
   email: string;
@@ -56,6 +76,8 @@ export const defaultHotelProfile: HotelProfile = {
   name: "Grand Marina Resort & Spa",
   stars: 5,
   tagline: "Hospitalidade de excelência e conforto 24/7 à beira-mar",
+  defaultLanguage: "pt",
+  customGreetings: {},
   address: "Avenida da Marina Real, 450, 8125-401 Vilamoura, Portugal",
   phone: "+351 289 000 100",
   email: "concierge@grandmarinaresort.com",
@@ -82,6 +104,86 @@ export const defaultHotelProfile: HotelProfile = {
   roomServiceHours: "24 horas por dia (Menu completo das 11:00 às 23:00; Menu Noturno reduzido das 23:00 às 07:00). Marcar extensão 7 ou pedir via Chatbot.",
   localAttractions: "• Marina e Passeio Marítimo: 5 minutos a pé (restaurantes, iates, lojas)\n• Praia da Falésia: 8 minutos a pé (passadiço direto)\n• Campos de Golfe (Victoria & Old Course): 5 km (shuttle gratuito do hotel às 08:30 e 14:00)\n• Centro Histórico e Mercado Municipal: 3 km (táxis disponíveis na porta ou aluguer de bicicletas do hotel)."
 };
+
+export function getDefaultGreeting(hotelName: string, lang: SupportedLanguage, customGreeting?: string): string {
+  if (customGreeting && customGreeting.trim()) {
+    return customGreeting.trim();
+  }
+  switch (lang) {
+    case "en":
+      return `Hello! I am the 24/7 virtual concierge for ${hotelName}. How may I assist you today? I can help with Wi-Fi access, dining hours, pool & spa details, extra towels, room service, or late check-out requests.`;
+    case "es":
+      return `¡Hola! Soy el asistente virtual 24/7 de ${hotelName}. ¿En qué puedo ayudarle hoy? Puedo informarle sobre la red Wi-Fi, horarios de comidas, piscina y spa, toallas adicionales, servicio de habitaciones o salida tardía.`;
+    case "fr":
+      return `Bonjour ! Je suis le concierge virtuel 24/7 de ${hotelName}. Comment puis-je vous aider aujourd'hui ? Je peux vous renseigner sur le Wi-Fi, les horaires des repas, la piscine et le spa, les serviettes supplémentaires, le room service ou le départ tardif.`;
+    case "de":
+      return `Guten Tag! Ich bin der virtuelle 24/7-Concierge des ${hotelName}. Wie kann ich Ihren Aufenthalt heute noch angenehmer gestalten? Ich helfe Ihnen gerne bei WLAN, Essenszeiten, Pool & Spa, zusätzlichen Handtüchern, Zimmerservice oder spätem Check-out.`;
+    case "pt":
+    default:
+      return `Olá! Sou o assistente virtual 24/7 do ${hotelName}. Como posso tornar a sua estadia mais confortável hoje? Posso ajudar com Wi-Fi, horários de refeições, piscina e spa, pedidos de toalhas e serviço de quarto, ou late check-out.`;
+  }
+}
+
+export interface LocalizedPrompt {
+  label: string;
+  prompt: string;
+}
+
+export function getLocalizedPrompts(lang: SupportedLanguage): LocalizedPrompt[] {
+  switch (lang) {
+    case "en":
+      return [
+        { label: "📶 Wi-Fi Access", prompt: "What is the Wi-Fi network and how do I connect?" },
+        { label: "🥐 Breakfast Hours", prompt: "What time is breakfast served and where is the restaurant located?" },
+        { label: "⏰ Late Check-out", prompt: "Is late check-out available and what is the fee?" },
+        { label: "🏊 Pool & Spa", prompt: "What are the opening hours for the heated swimming pool and spa?" },
+        { label: "🚗 EV Charging", prompt: "Does the hotel parking have electric vehicle charging stations?" },
+        { label: "🐾 Pet Policy", prompt: "What is the hotel's pet policy?" },
+        { label: "🛎️ Extra Towels (Ticket)", prompt: "Could I please request 2 extra bath towels to my room?" }
+      ];
+    case "es":
+      return [
+        { label: "📶 Contraseña Wi-Fi", prompt: "¿Cuál es la red Wi-Fi y cómo puedo conectarme?" },
+        { label: "🥐 Horario Desayuno", prompt: "¿A qué hora se sirve el desayuno y dónde está el restaurante?" },
+        { label: "⏰ Late Check-out", prompt: "¿Es posible solicitar salida tardía y cuál es la tarifa?" },
+        { label: "🏊 Piscina y Spa", prompt: "¿Cuál es el horario de la piscina climatizada y del spa?" },
+        { label: "🚗 Cargador Eléctrico", prompt: "¿El aparcamiento dispone de puntos de carga para vehículos eléctricos?" },
+        { label: "🐾 Mascotas", prompt: "¿Cuál es la política de admisión de mascotas?" },
+        { label: "🛎️ Toallas Extras (Ticket)", prompt: "Necesito 2 toallas de baño adicionales en la habitación, por favor." }
+      ];
+    case "fr":
+      return [
+        { label: "📶 Code Wi-Fi", prompt: "Quel est le réseau Wi-Fi et comment s'y connecter ?" },
+        { label: "🥐 Petit-déjeuner", prompt: "À quelle heure est servi le petit-déjeuner et où se trouve le restaurant ?" },
+        { label: "⏰ Départ tardif", prompt: "Est-il possible de faire un late check-out et quel est le tarif ?" },
+        { label: "🏊 Piscine & Spa", prompt: "Quels sont les horaires de la piscine et du spa ?" },
+        { label: "🚗 Borne électrique", prompt: "Le parking dispose-t-il de bornes de recharge pour voitures électriques ?" },
+        { label: "🐾 Animaux", prompt: "Quelle est la politique concernant les animaux de compagnie ?" },
+        { label: "🛎️ Serviettes (Ticket)", prompt: "J'aimerais 2 serviettes de bain supplémentaires dans ma chambre, s'il vous plaît." }
+      ];
+    case "de":
+      return [
+        { label: "📶 WLAN-Zugang", prompt: "Wie lautet das WLAN-Netzwerk und wie verbinde ich mich?" },
+        { label: "🥐 Frühstückszeiten", prompt: "Wann gibt es Frühstück und wo befindet sich das Restaurant?" },
+        { label: "⏰ Später Check-out", prompt: "Ist ein Late Check-out möglich und wie hoch ist die Gebühr?" },
+        { label: "🏊 Pool & Spa", prompt: "Wie sind die Öffnungszeiten von Pool und Spa?" },
+        { label: "🚗 E-Ladestation", prompt: "Gibt es auf dem Hotelparkplatz Ladestationen für Elektroautos?" },
+        { label: "🐾 Haustier-Richtlinie", prompt: "Wie sind die Bestimmungen für Haustiere im Hotel?" },
+        { label: "🛎️ Handtücher (Ticket)", prompt: "Ich benötige bitte 2 zusätzliche Badetücher auf dem Zimmer." }
+      ];
+    case "pt":
+    default:
+      return [
+        { label: "📶 Senha Wi-Fi", prompt: "Qual é a rede Wi-Fi e como me posso ligar?" },
+        { label: "🥐 Horário Pequeno-Almoço", prompt: "A que horas é servido o pequeno-almoço e onde fica o restaurante?" },
+        { label: "⏰ Late Check-out", prompt: "É possível fazer late check-out e qual é o valor da taxa?" },
+        { label: "🏊 Piscina & Spa", prompt: "Qual é o horário da piscina aquecida e do Spa?" },
+        { label: "🚗 Carregador Elétrico", prompt: "O estacionamento do hotel tem carregador para carros elétricos?" },
+        { label: "🐾 Animais de Estimação", prompt: "Qual é a política do hotel para animais de estimação?" },
+        { label: "🛎️ Toalhas Extras (Ticket)", prompt: "Preciso de 2 toalhas de banho adicionais no quarto, por favor." }
+      ];
+  }
+}
 
 export const sampleMenuItems: MenuItem[] = [
   {

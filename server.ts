@@ -92,6 +92,7 @@ app.post("/api/chat", async (req, res) => {
       hotelName = "Grand Marina Resort & Spa",
       roomNumber = "402",
       guestName = "Mr. Silva",
+      language = "pt",
       customPrompt = "",
       createTicketIfApplicable = true
     } = req.body;
@@ -104,28 +105,28 @@ app.post("/api/chat", async (req, res) => {
     let detectedTicket: Partial<GuestTicket> | null = null;
     const lowerMsg = message.toLowerCase();
 
-    if (lowerMsg.includes("toalha") || lowerMsg.includes("towel") || lowerMsg.includes("almofada") || lowerMsg.includes("pillow") || lowerMsg.includes("limpeza") || lowerMsg.includes("cleaning")) {
+    if (lowerMsg.includes("toalha") || lowerMsg.includes("towel") || lowerMsg.includes("toalla") || lowerMsg.includes("serviette") || lowerMsg.includes("handtuch") || lowerMsg.includes("almofada") || lowerMsg.includes("pillow") || lowerMsg.includes("oreiller") || lowerMsg.includes("kissen") || lowerMsg.includes("limpeza") || lowerMsg.includes("cleaning") || lowerMsg.includes("nettoyage") || lowerMsg.includes("reinigung")) {
       detectedTicket = {
         category: "housekeeping",
-        title: lowerMsg.includes("toalha") || lowerMsg.includes("towel") ? "Pedido de Toalhas Extras" : "Serviço de Housekeeping / Limpeza",
+        title: lowerMsg.includes("toalha") || lowerMsg.includes("towel") || lowerMsg.includes("toalla") || lowerMsg.includes("serviette") || lowerMsg.includes("handtuch") ? "Pedido de Toalhas Extras" : "Serviço de Housekeeping / Limpeza",
         description: `Pedido efetuado pelo hóspede no chat: "${message}"`,
         priority: "medium"
       };
-    } else if (lowerMsg.includes("late check-out") || lowerMsg.includes("late checkout") || lowerMsg.includes("saída tardia") || lowerMsg.includes("sair mais tarde")) {
+    } else if (lowerMsg.includes("late check-out") || lowerMsg.includes("late checkout") || lowerMsg.includes("saída tardia") || lowerMsg.includes("salida tardía") || lowerMsg.includes("départ tardif") || lowerMsg.includes("später check-out") || lowerMsg.includes("sair mais tarde")) {
       detectedTicket = {
         category: "late_checkout",
         title: "Solicitação de Late Check-out",
         description: `Hóspede perguntou/solicitou check-out tardio: "${message}"`,
         priority: "high"
       };
-    } else if (lowerMsg.includes("avaria") || lowerMsg.includes("ar condicionado") || lowerMsg.includes("ac") || lowerMsg.includes("lâmpada") || lowerMsg.includes("chuveiro") || lowerMsg.includes("quebrado") || lowerMsg.includes("broken")) {
+    } else if (lowerMsg.includes("avaria") || lowerMsg.includes("ar condicionado") || lowerMsg.includes("ac") || lowerMsg.includes("air conditioning") || lowerMsg.includes("climatisation") || lowerMsg.includes("klimaanlage") || lowerMsg.includes("lâmpada") || lowerMsg.includes("chuveiro") || lowerMsg.includes("shower") || lowerMsg.includes("quebrado") || lowerMsg.includes("broken") || lowerMsg.includes("en panne")) {
       detectedTicket = {
         category: "maintenance",
         title: "Pedido de Manutenção no Quarto",
         description: `Problema reportado pelo hóspede: "${message}"`,
         priority: "high"
       };
-    } else if (lowerMsg.includes("room service") || lowerMsg.includes("serviço de quarto") || lowerMsg.includes("pedir comida") || lowerMsg.includes("hambúrguer") || lowerMsg.includes("vinho") || lowerMsg.includes("garrafa de água")) {
+    } else if (lowerMsg.includes("room service") || lowerMsg.includes("serviço de quarto") || lowerMsg.includes("servicio de habitaciones") || lowerMsg.includes("zimmerservice") || lowerMsg.includes("pedir comida") || lowerMsg.includes("hambúrguer") || lowerMsg.includes("burger") || lowerMsg.includes("vinho") || lowerMsg.includes("wine") || lowerMsg.includes("garrafa de água") || lowerMsg.includes("water")) {
       detectedTicket = {
         category: "room_service",
         title: "Pedido de Room Service",
@@ -151,12 +152,22 @@ app.post("/api/chat", async (req, res) => {
       ticketsStore.unshift(createdTicketRecord);
     }
 
-    const basePrompt = customPrompt || `You are HotelAI Concierge, an intelligent, helpful and elegant 24/7 AI guest assistant for ${hotelName}.
+    const languageNames: Record<string, string> = {
+      pt: "Portuguese (Português)",
+      en: "English",
+      es: "Spanish (Español)",
+      fr: "French (Français)",
+      de: "German (Deutsch)"
+    };
+    const currentLangName = languageNames[language] || "Portuguese";
+
+    const basePrompt = customPrompt || `You are HotelAI Concierge, an intelligent, helpful, multilingual and elegant 24/7 AI guest assistant for ${hotelName}.
 
 HOTEL CONTEXT:
 - Hotel Name: ${hotelName}
 - Current Guest Room: ${roomNumber || "Quarto do Hóspede"}
 - Guest Name: ${guestName || "Estimado Hóspede"}
+- Configured Primary Language: ${currentLangName} (${language})
 - Ticket Status: ${createdTicketRecord ? `Um pedido de serviço formal (Ticket #${createdTicketRecord.id}: ${createdTicketRecord.title}) foi registado internamente para a equipa.` : "Nenhum ticket aberto."}
 
 APPROVED KNOWLEDGE BASE:
@@ -169,8 +180,12 @@ CORE DIRECTIVES:
 2. Ground all answers 100% in the approved Knowledge Base above. Never invent prices, times, or unlisted policies.
 3. If information is not in the knowledge base, state politely that you don't have that detail and invite the guest to connect with the reception (extension 9).
 4. If the guest is requesting physical staff assistance (e.g. extra towels, pillows, maintenance, late check-out authorization, baggage assistance, food order), reassure the guest warmly that their request has been logged / forwarded to our team, and let them know the reception is also at their service at extension 9.
-5. Always answer directly in the language the guest uses (Portuguese, English, Spanish, French, German, Italian, etc.).
-6. Maintain a warm, polite, luxury hospitality tone. Keep answers concise, crystal clear, and easy to read.`;
+5. MULTILINGUAL BEHAVIOR:
+   - If the guest writes in English, reply in natural, polished English.
+   - If the guest writes in Portuguese, reply in polite European Portuguese.
+   - If the guest writes in Spanish, French, German, Italian, or other languages, reply fluently in that exact same language.
+   - If the conversation begins with default greetings, default to ${currentLangName}.
+6. Maintain a warm, polite, 5-star luxury hospitality tone. Keep answers concise, crystal clear, and easy to read on mobile devices.`;
 
     if (ai) {
       try {
@@ -216,7 +231,7 @@ CORE DIRECTIVES:
     }
 
     // Local fallback response
-    const localReply = generateLocalHotelResponse(message, knowledgeBase, hotelName, roomNumber);
+    const localReply = generateLocalHotelResponse(message, knowledgeBase, hotelName, roomNumber, language);
     return res.json({
       reply: localReply.text,
       model: "local-hospitality-rag",
@@ -290,90 +305,100 @@ app.delete("/api/tickets/:id", (req, res) => {
 });
 
 // Fallback rule-based simulator strictly adhering to user knowledge rules
-function generateLocalHotelResponse(message: string, kb: string, hotelName: string, roomNumber: string) {
+function generateLocalHotelResponse(message: string, kb: string, hotelName: string, roomNumber: string, language: string = "pt") {
   const lower = message.toLowerCase();
+  const isEn = language === "en" || /^(what|how|is|can|where|please|hello|hi|do)\b/i.test(message.trim());
+  const isEs = language === "es" || /^(hola|cuál|cual|cómo|como|dónde|donde|a qué|por favor)\b/i.test(message.trim());
+  const isFr = language === "fr" || /^(bonjour|salut|quel|quelle|comment|où|est-ce|s'il)\b/i.test(message.trim());
+  const isDe = language === "de" || /^(hallo|guten|wie|wo|wann|kann|bitte|ist)\b/i.test(message.trim());
   
   // Emergency check
-  if (lower.includes("incêndio") || lower.includes("fogo") || lower.includes("médic") || lower.includes("ambulância") || lower.includes("emergência") || lower.includes("emergency") || lower.includes("fire") || lower.includes("hurt")) {
+  if (lower.includes("incêndio") || lower.includes("fogo") || lower.includes("médic") || lower.includes("ambulância") || lower.includes("emergência") || lower.includes("emergency") || lower.includes("fire") || lower.includes("hurt") || lower.includes("urgencia")) {
+    let msg = "Para qualquer emergência médica ou de segurança, por favor ligue imediatamente para a receção marcando a extensão 9 do telefone do quarto ou dirija-se à receção no Piso 0. Para o número de emergência nacional, ligue 112.";
+    if (isEn) msg = "For any medical or safety emergency, please dial extension 9 on your room phone immediately to connect with the reception, or call 112 for national emergency services.";
+    if (isEs) msg = "Para cualquier emergencia médica o de seguridad, marque inmediatamente la extensión 9 en el teléfono de su habitación para conectar con recepción, o llame al 112.";
+    if (isFr) msg = "Pour toute urgence médicale ou de sécurité, veuillez composer immédiatement le poste 9 sur le téléphone de votre chambre pour joindre la réception, ou le 112.";
+    if (isDe) msg = "Im Falle eines medizinischen oder sicherheitsrelevanten Notfalls wählen Sie bitte sofort die Durchwahl 9 an Ihrem Zimmertelefon oder rufen Sie den Notruf 112 an.";
     return {
-      text: "Para qualquer emergência médica ou de segurança, por favor ligue imediatamente para a receção marcando a extensão 9 do telefone do quarto ou dirija-se à receção no Piso 0. Para o número de emergência nacional, ligue 112.",
+      text: msg,
       isEscalation: true,
       grounded: true
     };
   }
 
   // Wi-Fi
-  if (lower.includes("wi-fi") || lower.includes("wifi") || lower.includes("internet") || lower.includes("senha") || lower.includes("password")) {
+  if (lower.includes("wi-fi") || lower.includes("wifi") || lower.includes("internet") || lower.includes("senha") || lower.includes("password") || lower.includes("mot de passe") || lower.includes("passwort") || lower.includes("contraseña")) {
+    let msg = `A rede Wi-Fi de alta velocidade gratuita em todo o hotel é "${hotelName}_Guest". Não necessita de senha fixa: basta selecionar a rede, introduzir o número do seu quarto (${roomNumber || "402"}) e o apelido da reserva no ecrã de boas-vindas.`;
+    if (isEn) msg = `The complimentary high-speed Wi-Fi network throughout the hotel is "${hotelName}_Guest". No password is required: simply select the network and enter your room number (${roomNumber || "402"}) and reservation surname on the welcome screen.`;
+    if (isEs) msg = `La red Wi-Fi de alta velocidad gratuita en todo el hotel es "${hotelName}_Guest". No requiere contraseña: solo seleccione la red e introduzca su número de habitación (${roomNumber || "402"}) y apellido de la reserva.`;
+    if (isFr) msg = `Le réseau Wi-Fi haut débit gratuit dans tout l'hôtel est "${hotelName}_Guest". Aucun mot de passe requis : connectez-vous et saisissez votre numéro de chambre (${roomNumber || "402"}) et votre nom de réservation.`;
+    if (isDe) msg = `Das kostenfreie Highspeed-WLAN im gesamten Hotel lautet "${hotelName}_Guest". Kein festes Passwort erforderlich: Geben Sie im Anmeldeportal Ihre Zimmernummer (${roomNumber || "402"}) und Ihren Nachnamen ein.`;
     return {
-      text: `A rede Wi-Fi de alta velocidade gratuita em todo o hotel é "${hotelName}_Guest". Não necessita de senha fixa: basta selecionar a rede, introduzir o número do seu quarto (${roomNumber || "402"}) e o apelido da reserva no ecrã de boas-vindas.`,
+      text: msg,
       isEscalation: false,
       grounded: true
     };
   }
 
   // Breakfast
-  if (lower.includes("pequeno-almoço") || lower.includes("pequeno almoço") || lower.includes("café da manhã") || lower.includes("breakfast") || lower.includes("desayuno")) {
+  if (lower.includes("pequeno-almoço") || lower.includes("pequeno almoço") || lower.includes("café da manhã") || lower.includes("breakfast") || lower.includes("desayuno") || lower.includes("petit-déjeuner") || lower.includes("petit dejeuner") || lower.includes("frühstück")) {
+    let msg = "O pequeno-almoço buffet é servido diariamente das 07:00 às 10:30 (e até às 11:00 aos fins de semana e feriados) no Restaurante Atlântico (Piso 1). Inclui opções sem glúten, vegan, frutas frescas e show-cooking de ovos e crepes.";
+    if (isEn) msg = "The buffet breakfast is served daily from 07:00 to 10:30 (until 11:00 on weekends and holidays) at the Atlântico Restaurant (1st Floor). It includes gluten-free, vegan options, fresh fruits, and live show-cooking of eggs and crepes.";
+    if (isEs) msg = "El desayuno buffet se sirve todos los días de 07:00 a 10:30 (hasta las 11:00 los fines de semana y festivos) en el Restaurante Atlántico (Planta 1). Incluye opciones sin gluten, veganas y cocina en vivo.";
+    if (isFr) msg = "Le petit-déjeuner buffet est servi tous les jours de 07h00 à 10h30 (jusqu'à 11h00 les week-ends et jours fériés) au Restaurant Atlântico (1er étage), avec options sans gluten, vegan et show-cooking.";
+    if (isDe) msg = "Das Frühstücksbuffet wird täglich von 07:00 bis 10:30 Uhr (an Wochenenden und Feiertagen bis 11:00 Uhr) im Restaurant Atlântico (1. Stock) serviert. Es umfasst glutenfreie, vegane Optionen und Live-Cooking.";
     return {
-      text: "O pequeno-almoço buffet é servido diariamente das 07:00 às 10:30 (e até às 11:00 aos fins de semana e feriados) no Restaurante Atlântico (Piso 1). Inclui opções sem glúten, vegan, frutas frescas e show-cooking de ovos e crepes.",
+      text: msg,
       isEscalation: false,
       grounded: true
     };
   }
 
   // Check-in / Check-out
-  if (lower.includes("check-out") || lower.includes("checkout") || lower.includes("check out") || lower.includes("saída") || lower.includes("partida") || lower.includes("sair")) {
-    if (lower.includes("tarde") || lower.includes("late") || lower.includes("prolongar") || lower.includes("14")) {
+  if (lower.includes("check-out") || lower.includes("checkout") || lower.includes("check out") || lower.includes("saída") || lower.includes("salida") || lower.includes("départ") || lower.includes("abfahrt")) {
+    if (lower.includes("tarde") || lower.includes("late") || lower.includes("tardif") || lower.includes("spät") || lower.includes("prolongar") || lower.includes("14")) {
+      let msg = "O horário habitual de check-out é até às 12:00. Registámos o seu interesse em late check-out. A extensão de estadia (até às 14h ou 18h) está sujeita à disponibilidade e confirmação direta da receção através da extensão 9.";
+      if (isEn) msg = "Standard check-out is by 12:00 PM. We have noted your request for late check-out. Extensions (until 2:00 PM or 6:00 PM) are subject to room availability and front desk confirmation (ext. 9).";
+      if (isEs) msg = "El horario estándar de salida es hasta las 12:00. Hemos registrado su solicitud de late check-out. La extensión está sujeta a disponibilidad y confirmación en recepción (ext. 9).";
+      if (isFr) msg = "L'heure de départ habituelle est fixée à 12h00. Votre demande de départ tardif a été enregistrée, sous réserve de disponibilité confirmée par la réception (poste 9).";
+      if (isDe) msg = "Die reguläre Check-out-Zeit ist bis 12:00 Uhr. Wir haben Ihre Anfrage für einen späten Check-out vermerkt. Die Verlängerung unterliegt der Verfügbarkeit und Bestätigung der Rezeption (Durchwahl 9).";
       return {
-        text: "O horário habitual de check-out é até às 12:00. Registámos o seu interesse em late check-out. A extensão de estadia (até às 14h ou 18h) está sujeita à disponibilidade e confirmação direta da receção através da extensão 9.",
+        text: msg,
         isEscalation: true,
         grounded: true
       };
     }
+    let msg = "O horário de check-out é até às 12:00. Caso pretenda guardar a sua bagagem após a saída, dispomos de um serviço de bengaleiro gratuito junto à receção 24h.";
+    if (isEn) msg = "Standard check-out is until 12:00 PM. Luggage storage is available free of charge at the 24/7 front desk.";
     return {
-      text: "O horário de check-out é até às 12:00. Caso pretenda guardar a sua bagagem após a saída, dispomos de um serviço de bengaleiro gratuito junto à receção 24h.",
-      isEscalation: false,
-      grounded: true
-    };
-  }
-
-  if (lower.includes("check-in") || lower.includes("checkin") || lower.includes("entrada") || lower.includes("chegar")) {
-    return {
-      text: "O check-in está disponível a partir das 15:00. A nossa receção está aberta 24 horas por dia para o receber.",
-      isEscalation: false,
-      grounded: true
-    };
-  }
-
-  // Pool & Spa
-  if (lower.includes("piscina") || lower.includes("pool") || lower.includes("spa") || lower.includes("jacuzzi") || lower.includes("sauna") || lower.includes("massag")) {
-    return {
-      text: "A piscina exterior e a piscina interior aquecida estão abertas diariamente das 08:00 às 20:00 (Piso -1). O Spa Thalasso funciona das 09:00 às 19:30. As toalhas de piscina são disponibilizadas gratuitamente no quiosque com o seu cartão de hóspede.",
-      isEscalation: false,
-      grounded: true
-    };
-  }
-
-  // Parking
-  if (lower.includes("estacionamento") || lower.includes("parque") || lower.includes("garagem") || lower.includes("carro") || lower.includes("parking") || lower.includes("ev") || lower.includes("elétrico")) {
-    return {
-      text: "Dispomos de estacionamento subterrâneo privativo e gratuito com acesso 24h no Piso -2 (acesso com a chave magnética do quarto). Inclui 6 postos de carregamento elétrico ultrarrápido.",
+      text: msg,
       isEscalation: false,
       grounded: true
     };
   }
 
   // Towels / Maintenance / Action in room
-  if (lower.includes("toalha") || lower.includes("limpeza") || lower.includes("avaria") || lower.includes("ar condicionado") || lower.includes("travesseiro") || lower.includes("almofada") || lower.includes("towel")) {
+  if (lower.includes("toalha") || lower.includes("limpeza") || lower.includes("avaria") || lower.includes("towel") || lower.includes("toalla") || lower.includes("serviette") || lower.includes("handtuch")) {
+    let msg = `O seu pedido para o quarto ${roomNumber || "do hóspede"} foi registado com sucesso no nosso sistema de governança! A nossa equipa já foi notificada para providenciar o que necessita com a maior brevidade.`;
+    if (isEn) msg = `Your request for Room ${roomNumber || "guest room"} has been successfully dispatched to our housekeeping team! Our staff is attending to it promptly.`;
+    if (isEs) msg = `¡Su solicitud para la habitación ${roomNumber || "del huésped"} ha sido registrada con éxito en gobernanta! Nuestro equipo ya ha sido notificado.`;
+    if (isFr) msg = `Votre demande pour la chambre ${roomNumber || "du client"} a bien été transmise à notre équipe de gouvernance. Nous nous en occupons dans les plus brefs délais.`;
+    if (isDe) msg = `Ihre Anfrage für Zimmer ${roomNumber || "des Gastes"} wurde erfolgreich an unser Housekeeping-Team weitergeleitet! Unser Personal kümmert sich umgehend darum.`;
     return {
-      text: `O seu pedido para o quarto ${roomNumber || "do hóspede"} foi registado com sucesso no nosso sistema de governança! A nossa equipa já foi notificada para providenciar o que necessita com a maior brevidade.`,
+      text: msg,
       isEscalation: true,
       grounded: true
     };
   }
 
   // Default
+  let defaultText = "Não disponho dessa informação específica na minha base de dados atual. Para obter uma resposta precisa ou assistência personalizada, recomendo que contacte a nossa receção através da extensão 9 no telefone do seu quarto ou no balcão principal.";
+  if (isEn) defaultText = "I don't have that specific information in my current records. For immediate assistance, please feel free to dial extension 9 on your room telephone to reach our 24/7 front desk team.";
+  if (isEs) defaultText = "No dispongo de esa información específica. Para recibir asistencia personalizada, póngase en contacto con la recepción marcando la extensión 9 en el teléfono de su habitación.";
+  if (isFr) defaultText = "Je ne dispose pas de cette information spécifique. Pour une assistance personnalisée, veuillez contacter la réception en composant le poste 9 sur le téléphone de votre chambre.";
+  if (isDe) defaultText = "Diese Information liegt mir derzeit nicht vor. Für persönliche Unterstützung wenden Sie sich bitte über die Durchwahl 9 an unserem Zimmertelefon an die Rezeption.";
   return {
-    text: "Não disponho dessa informação específica na minha base de dados atual. Para obter uma resposta precisa ou assistência personalizada, recomendo que contacte a nossa receção através da extensão 9 no telefone do seu quarto ou no balcão principal.",
+    text: defaultText,
     isEscalation: true,
     grounded: false
   };
