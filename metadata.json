@@ -1,0 +1,6 @@
+{
+  "name": "HotelAI - 24/7 Guest Chatbot & Concierge",
+  "description": "Standalone 24/7 AI Hotel Guest Chatbot & Concierge with real-time hospitality intelligence, speech support, room services and housekeeping ticketing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
