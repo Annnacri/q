@@ -5,19 +5,19 @@ import { StaffDeskView } from "./components/StaffDeskView";
 import { HotelDirectoryView } from "./components/HotelDirectoryView";
 import { KnowledgeBaseAdminView } from "./components/KnowledgeBaseAdminView";
 import { EmbedWidgetView } from "./components/EmbedWidgetView";
+import { PricingPlansView } from "./components/PricingPlansView";
 import {
   MessageSquare,
   ClipboardList,
   UtensilsCrossed,
   Settings,
   QrCode,
-  PhoneCall,
-  BedDouble,
-  Sparkles
+  Sparkles,
+  BadgeDollarSign
 } from "lucide-react";
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<"chatbot" | "staff" | "directory" | "knowledge" | "embed">("chatbot");
+  const [activeTab, setActiveTab] = useState<"chatbot" | "staff" | "directory" | "knowledge" | "embed" | "pricing">("chatbot");
   const [hotelProfile, setHotelProfile] = useState<HotelProfile>(() => {
     const saved = localStorage.getItem("hotel_profile_v2");
     if (saved) {
@@ -188,17 +188,39 @@ export function App() {
             <QrCode className="w-3.5 h-3.5" />
             <span>Instalação</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab("pricing")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "pricing"
+                ? "bg-emerald-50 text-emerald-700 font-bold border border-emerald-200"
+                : "text-emerald-700 bg-emerald-50/60 hover:bg-emerald-100 hover:text-emerald-800"
+            }`}
+          >
+            <BadgeDollarSign className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Preços & Planos</span>
+          </button>
         </nav>
 
         {/* Zone 3: Primary Action Zone */}
         <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={() => setActiveTab("chatbot")}
+            onClick={() => setActiveTab(activeTab === "pricing" ? "chatbot" : "pricing")}
             className="py-2 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Abrir Assistente</span>
-            <span className="sm:hidden">Assistente</span>
+            {activeTab === "pricing" ? (
+              <>
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Testar Assistente</span>
+                <span className="sm:hidden">Assistente</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Ver Planos SaaS</span>
+                <span className="sm:hidden">Planos</span>
+              </>
+            )}
           </button>
         </div>
       </header>
@@ -243,6 +265,10 @@ export function App() {
 
         {activeTab === "embed" && (
           <EmbedWidgetView hotelProfile={hotelProfile} />
+        )}
+
+        {activeTab === "pricing" && (
+          <PricingPlansView />
         )}
       </main>
 
