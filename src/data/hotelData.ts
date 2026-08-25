@@ -1,4 +1,4 @@
-export type SupportedLanguage = "pt" | "en" | "es" | "fr" | "de";
+export type SupportedLanguage = "pt" | "en" | "es" | "fr" | "de" | "it";
 
 export interface LanguageOption {
   code: SupportedLanguage;
@@ -14,6 +14,7 @@ export const SUPPORTED_LANGUAGES: LanguageOption[] = [
   { code: "es", label: "Español", flag: "🇪🇸", nativeName: "Español", locale: "es-ES" },
   { code: "fr", label: "Français", flag: "🇫🇷", nativeName: "Français", locale: "fr-FR" },
   { code: "de", label: "Deutsch", flag: "🇩🇪", nativeName: "Deutsch", locale: "de-DE" },
+  { code: "it", label: "Italiano", flag: "🇮🇹", nativeName: "Italiano", locale: "it-IT" },
 ];
 
 export interface HotelProfile {
@@ -118,6 +119,8 @@ export function getDefaultGreeting(hotelName: string, lang: SupportedLanguage, c
       return `Bonjour ! Je suis le concierge virtuel 24/7 de ${hotelName}. Comment puis-je vous aider aujourd'hui ? Je peux vous renseigner sur le Wi-Fi, les horaires des repas, la piscine et le spa, les serviettes supplémentaires, le room service ou le départ tardif.`;
     case "de":
       return `Guten Tag! Ich bin der virtuelle 24/7-Concierge des ${hotelName}. Wie kann ich Ihren Aufenthalt heute noch angenehmer gestalten? Ich helfe Ihnen gerne bei WLAN, Essenszeiten, Pool & Spa, zusätzlichen Handtüchern, Zimmerservice oder spätem Check-out.`;
+    case "it":
+      return `Buongiorno! Sono il concierge virtuale 24/7 del ${hotelName}. Come posso aiutarla oggi? Posso fornirle informazioni su Wi-Fi, orari dei pasti, piscina e spa, asciugamani extra, servizio in camera o late check-out.`;
     case "pt":
     default:
       return `Olá! Sou o assistente virtual 24/7 do ${hotelName}. Como posso tornar a sua estadia mais confortável hoje? Posso ajudar com Wi-Fi, horários de refeições, piscina e spa, pedidos de toalhas e serviço de quarto, ou late check-out.`;
@@ -170,6 +173,16 @@ export function getLocalizedPrompts(lang: SupportedLanguage): LocalizedPrompt[] 
         { label: "🚗 E-Ladestation", prompt: "Gibt es auf dem Hotelparkplatz Ladestationen für Elektroautos?" },
         { label: "🐾 Haustier-Richtlinie", prompt: "Wie sind die Bestimmungen für Haustiere im Hotel?" },
         { label: "🛎️ Handtücher (Ticket)", prompt: "Ich benötige bitte 2 zusätzliche Badetücher auf dem Zimmer." }
+      ];
+    case "it":
+      return [
+        { label: "📶 Accesso Wi-Fi", prompt: "Qual è la rete Wi-Fi e come posso collegarmi?" },
+        { label: "🥐 Orario Colazione", prompt: "A che ora viene servita la colazione e dov'è il ristorante?" },
+        { label: "⏰ Late Check-out", prompt: "È possibile richiedere il late check-out e qual è la tariffa?" },
+        { label: "🏊 Piscina e Spa", prompt: "Quali sono gli orari di apertura di piscina e spa?" },
+        { label: "🚗 Ricarica Elettrica", prompt: "Il parcheggio dell'hotel dispone di colonnine per auto elettriche?" },
+        { label: "🐾 Animali Domestici", prompt: "Qual è la politica dell'hotel riguardo agli animali domestici?" },
+        { label: "🛎️ Asciugamani Extra (Ticket)", prompt: "Posso avere 2 asciugamani da bagno extra in camera, per favore?" }
       ];
     case "pt":
     default:
@@ -331,6 +344,35 @@ export function getLocalizedUI(lang: SupportedLanguage): LocalizedUIStrings {
         viewDeskBtn: "Zur Rezeptionsübersicht →",
         roomLabel: "Zimmer",
         onlineBadge: "Online Concierge"
+      };
+    case "it":
+      return {
+        quickServices: "Servizi Rapidi in Camera",
+        wifiAccess: "Accesso Wi-Fi e QR",
+        wifiSubtitle: "Rete e istruzioni",
+        towelsHousekeeping: "Richiesta Asciugamani & Pulizie",
+        towelsSubtitle: "Consegna diretta in camera",
+        lateCheckout: "Richiesta Late Check-out",
+        lateCheckoutSubtitle: "Estendi soggiorno fino alle 14:00/18:00",
+        roomService: "Menu Servizio in Camera",
+        roomServiceSubtitle: "Cibo, snack e bevande",
+        hotelDirectory: "Guida e Contatti dell'Hotel",
+        hotelDirectorySubtitle: "Interni, spa e orari",
+        activeTickets: "Le Mie Richieste Attive",
+        inputPlaceholder: "Scriva la sua domanda o richiesta (es. Wi-Fi, asciugamani, colazione, checkout)...",
+        listeningPlaceholder: "In ascolto della sua voce...",
+        suggestionsTitle: "Suggerimenti:",
+        voiceActive: "Voce Attiva",
+        voiceMute: "Voce Disattivata",
+        todayBadge: "Oggi • Concierge Digitale 24/7",
+        thinkingText: "HotelAI sta verificando le informazioni dell'hotel...",
+        verifiedBadge: "Verificato",
+        staffNotifiedBadge: "Personale Notificato",
+        ticketRegistered: "Richiesta registrata:",
+        viewInDesk: "Vedi nel pannello",
+        viewDeskBtn: "Vedi Reception Desk →",
+        roomLabel: "Camera",
+        onlineBadge: "Concierge Online"
       };
     case "pt":
     default:

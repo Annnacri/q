@@ -54,7 +54,7 @@ export function PricingPlansView() {
       badge: "Ideal para Airbnb / VRBO",
       features: [
         "1 a 3 Unidades / Quartos",
-        "IA Multilíngue 24/7 (5 Idiomas)",
+        "IA Multilíngue 24/7 (6 Idiomas)",
         "QR Codes Digitais para os Quartos",
         "Pedidos Básicos de Hóspedes (Toalhas/Wi-Fi)",
         "Guia Local & Horários Automatizados",
@@ -143,7 +143,7 @@ export function PricingPlansView() {
               <Check className="w-4 h-4 text-emerald-400" /> Setup completo em 48h
             </span>
             <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-400" /> Suporte em 5 idiomas
+              <Check className="w-4 h-4 text-emerald-400" /> Suporte em 6 idiomas (PT, EN, ES, FR, DE, IT)
             </span>
           </div>
         </div>

@@ -157,7 +157,8 @@ app.post("/api/chat", async (req, res) => {
       en: "English",
       es: "Spanish (Español)",
       fr: "French (Français)",
-      de: "German (Deutsch)"
+      de: "German (Deutsch)",
+      it: "Italian (Italiano)"
     };
     const currentLangName = languageNames[language] || "Portuguese";
 
@@ -171,6 +172,7 @@ Even if the Knowledge Base is written in Portuguese or another language, or the 
 - If language is "es": Reply 100% in polite Spanish (Español).
 - If language is "fr": Reply 100% in elegant French (Français).
 - If language is "de": Reply 100% in polite German (Deutsch).
+- If language is "it": Reply 100% in refined Italian (Italiano).
 - If language is "pt": Reply 100% in European Portuguese (Português).
 
 HOTEL CONTEXT:
@@ -315,14 +317,16 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   const isEs = language === "es" || /^(hola|cuál|cual|cómo|como|dónde|donde|a qué|por favor)\b/i.test(message.trim());
   const isFr = language === "fr" || /^(bonjour|salut|quel|quelle|comment|où|est-ce|s'il)\b/i.test(message.trim());
   const isDe = language === "de" || /^(hallo|guten|wie|wo|wann|kann|bitte|ist)\b/i.test(message.trim());
+  const isIt = language === "it" || /^(ciao|buongiorno|qual|come|dove|quando|posso|per favore)\b/i.test(message.trim());
   
   // Emergency check
-  if (lower.includes("incêndio") || lower.includes("fogo") || lower.includes("médic") || lower.includes("ambulância") || lower.includes("emergência") || lower.includes("emergency") || lower.includes("fire") || lower.includes("hurt") || lower.includes("urgencia")) {
+  if (lower.includes("incêndio") || lower.includes("fogo") || lower.includes("médic") || lower.includes("ambulância") || lower.includes("emergência") || lower.includes("emergency") || lower.includes("fire") || lower.includes("hurt") || lower.includes("urgencia") || lower.includes("emergenza")) {
     let msg = "Para qualquer emergência médica ou de segurança, por favor ligue imediatamente para a receção marcando a extensão 9 do telefone do quarto ou dirija-se à receção no Piso 0. Para o número de emergência nacional, ligue 112.";
     if (isEn) msg = "For any medical or safety emergency, please dial extension 9 on your room phone immediately to connect with the reception, or call 112 for national emergency services.";
     if (isEs) msg = "Para cualquier emergencia médica o de seguridad, marque inmediatamente la extensión 9 en el teléfono de su habitación para conectar con recepción, o llame al 112.";
     if (isFr) msg = "Pour toute urgence médicale ou de sécurité, veuillez composer immédiatement le poste 9 sur le téléphone de votre chambre pour joindre la réception, ou le 112.";
     if (isDe) msg = "Im Falle eines medizinischen oder sicherheitsrelevanten Notfalls wählen Sie bitte sofort die Durchwahl 9 an Ihrem Zimmertelefon oder rufen Sie den Notruf 112 an.";
+    if (isIt) msg = "Per qualsiasi emergenza medica o di sicurezza, componga immediatamente il tasto 9 sul telefono della camera per parlare con la reception, o chiami il 112.";
     return {
       text: msg,
       isEscalation: true,
@@ -337,6 +341,7 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
     if (isEs) msg = `La red Wi-Fi de alta velocidad gratuita en todo el hotel es "${hotelName}_Guest". No requiere contraseña: solo seleccione la red e introduzca su número de habitación (${roomNumber || "402"}) y apellido de la reserva.`;
     if (isFr) msg = `Le réseau Wi-Fi haut débit gratuit dans tout l'hôtel est "${hotelName}_Guest". Aucun mot de passe requis : connectez-vous et saisissez votre numéro de chambre (${roomNumber || "402"}) et votre nom de réservation.`;
     if (isDe) msg = `Das kostenfreie Highspeed-WLAN im gesamten Hotel lautet "${hotelName}_Guest". Kein festes Passwort erforderlich: Geben Sie im Anmeldeportal Ihre Zimmernummer (${roomNumber || "402"}) und Ihren Nachnamen ein.`;
+    if (isIt) msg = `La rete Wi-Fi ad alta velocità gratuita in tutto l'hotel è "${hotelName}_Guest". Non serve password fissa: selezioni la rete e inserisca il numero di camera (${roomNumber || "402"}) e il cognome della prenotazione.`;
     return {
       text: msg,
       isEscalation: false,
@@ -345,12 +350,13 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   }
 
   // Breakfast
-  if (lower.includes("pequeno-almoço") || lower.includes("pequeno almoço") || lower.includes("café da manhã") || lower.includes("breakfast") || lower.includes("desayuno") || lower.includes("petit-déjeuner") || lower.includes("petit dejeuner") || lower.includes("frühstück")) {
+  if (lower.includes("pequeno-almoço") || lower.includes("pequeno almoço") || lower.includes("café da manhã") || lower.includes("breakfast") || lower.includes("desayuno") || lower.includes("petit-déjeuner") || lower.includes("petit dejeuner") || lower.includes("frühstück") || lower.includes("colazione")) {
     let msg = "O pequeno-almoço buffet é servido diariamente das 07:00 às 10:30 (e até às 11:00 aos fins de semana e feriados) no Restaurante Atlântico (Piso 1). Inclui opções sem glúten, vegan, frutas frescas e show-cooking de ovos e crepes.";
     if (isEn) msg = "The buffet breakfast is served daily from 07:00 to 10:30 (until 11:00 on weekends and holidays) at the Atlântico Restaurant (1st Floor). It includes gluten-free, vegan options, fresh fruits, and live show-cooking of eggs and crepes.";
     if (isEs) msg = "El desayuno buffet se sirve todos los días de 07:00 a 10:30 (hasta las 11:00 los fines de semana y festivos) en el Restaurante Atlántico (Planta 1). Incluye opciones sin gluten, veganas y cocina en vivo.";
     if (isFr) msg = "Le petit-déjeuner buffet est servi tous les jours de 07h00 à 10h30 (jusqu'à 11h00 les week-ends et jours fériés) au Restaurant Atlântico (1er étage), avec options sans gluten, vegan et show-cooking.";
     if (isDe) msg = "Das Frühstücksbuffet wird täglich von 07:00 bis 10:30 Uhr (an Wochenenden und Feiertagen bis 11:00 Uhr) im Restaurant Atlântico (1. Stock) serviert. Es umfasst glutenfreie, vegane Optionen und Live-Cooking.";
+    if (isIt) msg = "La colazione a buffet viene servita tutti i giorni dalle 07:00 alle 10:30 (fino alle 11:00 nei weekend) al Ristorante Atlântico (1° Piano), con opzioni senza glutine, vegane e show-cooking.";
     return {
       text: msg,
       isEscalation: false,
@@ -366,6 +372,7 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
       if (isEs) msg = "El horario estándar de salida es hasta las 12:00. Hemos registrado su solicitud de late check-out. La extensión está sujeta a disponibilidad y confirmación en recepción (ext. 9).";
       if (isFr) msg = "L'heure de départ habituelle est fixée à 12h00. Votre demande de départ tardif a été enregistrée, sous réserve de disponibilité confirmée par la réception (poste 9).";
       if (isDe) msg = "Die reguläre Check-out-Zeit ist bis 12:00 Uhr. Wir haben Ihre Anfrage für einen späten Check-out vermerkt. Die Verlängerung unterliegt der Verfügbarkeit und Bestätigung der Rezeption (Durchwahl 9).";
+      if (isIt) msg = "L'orario standard di check-out è entro le 12:00. Abbiamo registrato la sua richiesta di late check-out. Il prolungamento è soggetto a disponibilità e conferma della reception (int. 9).";
       return {
         text: msg,
         isEscalation: true,
@@ -377,6 +384,7 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
     if (isEs) msg = "El horario de check-out es hasta las 12:00. Disponemos de consigna de equipaje gratuita 24h en la recepción.";
     if (isFr) msg = "L'heure de départ est jusqu'à 12h00. Une bagagerie gratuite est disponible 24h/24 à la réception.";
     if (isDe) msg = "Der Check-out ist bis 12:00 Uhr möglich. Eine kostenlose Gepäckaufbewahrung steht an der 24h-Rezeption zur Verfügung.";
+    if (isIt) msg = "Il check-out standard è entro le 12:00. È disponibile un deposito bagagli gratuito 24/7 presso la reception.";
     return {
       text: msg,
       isEscalation: false,
@@ -385,12 +393,13 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   }
 
   // Check-in
-  if (lower.includes("check-in") || lower.includes("checkin") || lower.includes("entrada") || lower.includes("llegada") || lower.includes("arrivée") || lower.includes("anreise")) {
+  if (lower.includes("check-in") || lower.includes("checkin") || lower.includes("entrada") || lower.includes("llegada") || lower.includes("arrivée") || lower.includes("anreise") || lower.includes("arrivo")) {
     let msg = "O check-in está disponível a partir das 15:00. A nossa receção está aberta 24 horas por dia para o receber.";
     if (isEn) msg = "Check-in begins at 3:00 PM (15:00). Our reception desk is open 24/7 to welcome you.";
     if (isEs) msg = "El registro de entrada (check-in) está disponible a partir de las 15:00. Recepción abierta 24h.";
     if (isFr) msg = "L'enregistrement (check-in) est disponible à partir de 15h00. Notre réception est ouverte 24h/24.";
     if (isDe) msg = "Der Check-in ist ab 15:00 Uhr möglich. Unsere Rezeption ist rund um die Uhr für Sie da.";
+    if (isIt) msg = "Il check-in è disponibile a partire dalle 15:00. La nostra reception è aperta 24 ore su 24.";
     return {
       text: msg,
       isEscalation: false,
@@ -405,6 +414,7 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
     if (isEs) msg = "La piscina exterior y la piscina climatizada están abiertas todos los días de 08:00 a 20:00 (Planta -1). El Thalasso Spa abre de 09:00 a 19:30.";
     if (isFr) msg = "La piscine extérieure et le bassin chauffé sont ouverts tous les jours de 08h00 à 20h00 (Niveau -1). Le Spa Thalasso est ouvert de 09h00 à 19h30.";
     if (isDe) msg = "Der Außenpool und das beheizte Hallenbad sind täglich von 08:00 bis 20:00 Uhr geöffnet (Ebene -1). Das Thalasso Spa ist von 09:00 bis 19:30 Uhr geöffnet.";
+    if (isIt) msg = "La piscina all'aperto e la piscina interna riscaldata sono aperte tutti i giorni dalle 08:00 alle 20:00 (Piano -1). La Thalasso Spa è aperta dalle 09:00 alle 19:30.";
     return {
       text: msg,
       isEscalation: false,
@@ -413,12 +423,13 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   }
 
   // Parking & EV
-  if (lower.includes("estacionamento") || lower.includes("parque") || lower.includes("aparcamiento") || lower.includes("parking") || lower.includes("carro") || lower.includes("car") || lower.includes("ev") || lower.includes("elétrico") || lower.includes("eléctrico") || lower.includes("électrique") || lower.includes("laden")) {
+  if (lower.includes("estacionamento") || lower.includes("parque") || lower.includes("aparcamiento") || lower.includes("parking") || lower.includes("carro") || lower.includes("car") || lower.includes("ev") || lower.includes("elétrico") || lower.includes("eléctrico") || lower.includes("électrique") || lower.includes("laden") || lower.includes("parcheggio")) {
     let msg = "Dispomos de estacionamento subterrâneo privativo e gratuito com acesso 24h no Piso -2 (acesso com o cartão do quarto). Inclui 6 postos de carregamento elétrico ultrarrápido.";
     if (isEn) msg = "We offer complimentary 24/7 private underground parking on Floor -2 (keycard access). It includes 6 ultra-fast EV charging stations.";
     if (isEs) msg = "Disponemos de aparcamiento subterráneo privado y gratuito 24h en la Planta -2, equipado con 6 cargadores rápidos para vehículos eléctricos.";
     if (isFr) msg = "Nous proposons un parking souterrain sécurisé gratuit accessible 24h/24 au Niveau -2, avec 6 bornes de recharge pour véhicules électriques.";
     if (isDe) msg = "Wir bieten eine kostenlose private Tiefgarage mit 24h-Zugang auf Ebene -2, inklusive 6 Schnellladestationen für Elektroautos.";
+    if (isIt) msg = "Offriamo parcheggio sotterraneo privato e gratuito 24h al Piano -2 con 6 colonnine di ricarica rapida per veicoli elettrici.";
     return {
       text: msg,
       isEscalation: false,
@@ -427,12 +438,13 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   }
 
   // Pets
-  if (lower.includes("animal") || lower.includes("animais") || lower.includes("pet") || lower.includes("cão") || lower.includes("gato") || lower.includes("mascota") || lower.includes("chien") || lower.includes("haustier") || lower.includes("dog") || lower.includes("cat")) {
+  if (lower.includes("animal") || lower.includes("animais") || lower.includes("pet") || lower.includes("cão") || lower.includes("gato") || lower.includes("mascota") || lower.includes("chien") || lower.includes("haustier") || lower.includes("dog") || lower.includes("cat") || lower.includes("cane") || lower.includes("gatto")) {
     let msg = "Aceitamos animais de estimação de pequeno porte (até 15 kg) em quartos designados 'Pet Friendly' mediante taxa de 25€/noite (inclui cama e snacks).";
     if (isEn) msg = "We welcome small pets (up to 15 kg) in designated 'Pet Friendly' rooms for €25/night (includes dedicated pet bed, food bowls, and welcome snacks).";
     if (isEs) msg = "Aceptamos mascotas de hasta 15 kg en habitaciones 'Pet Friendly' por una tarifa de 25€/noche (incluye cama y snacks).";
     if (isFr) msg = "Les animaux de compagnie jusqu'à 15 kg sont acceptés dans les chambres 'Pet Friendly' (25€/nuit, lit et friandises inclus).";
     if (isDe) msg = "Kleine Haustiere (bis 15 kg) sind in ausgewählten Zimmern für 25 €/Nacht willkommen (inklusive Haustierbett und Snacks).";
+    if (isIt) msg = "Accogliamo animali di piccola taglia (fino a 15 kg) in camere 'Pet Friendly' con supplemento di 25€ a notte (cucce e ciotole incluse).";
     return {
       text: msg,
       isEscalation: false,
@@ -441,12 +453,13 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   }
 
   // Room Service / Menu
-  if (lower.includes("room service") || lower.includes("serviço de quarto") || lower.includes("servicio de habitaciones") || lower.includes("zimmerservice") || lower.includes("menu") || lower.includes("cardápio") || lower.includes("carta") || lower.includes("speisekarte") || lower.includes("comida") || lower.includes("food") || lower.includes("nourriture") || lower.includes("essen")) {
+  if (lower.includes("room service") || lower.includes("serviço de quarto") || lower.includes("servicio de habitaciones") || lower.includes("zimmerservice") || lower.includes("servizio in camera") || lower.includes("menu") || lower.includes("cardápio") || lower.includes("carta") || lower.includes("speisekarte") || lower.includes("comida") || lower.includes("food") || lower.includes("nourriture") || lower.includes("essen") || lower.includes("cibo")) {
     let msg = "O Room Service funciona 24 horas (menu completo das 11:00 às 23:00 com hambúrgueres gourmet, peixe fresco, sobremesas e vinhos). Pode pedir no chat ou marcar 7.";
     if (isEn) msg = "Room Service operates 24/7 (full menu from 11:00 AM to 11:00 PM including gourmet burgers, fresh fish, desserts, and fine wines). Dial extension 7 or ask me here.";
     if (isEs) msg = "El servicio de habitaciones funciona 24h (menú completo de 11:00 a 23:00 con hamburguesas gourmet, pescado fresco y vinos). Marque la extensión 7.";
     if (isFr) msg = "Le service d'étage est ouvert 24h/24 (carte complète de 11h00 à 23h00 avec burgers gourmets, poisson frais et vins). Composez le poste 7.";
     if (isDe) msg = "Der Zimmerservice steht Ihnen 24 Stunden zur Verfügung (vollständige Karte von 11:00 bis 23:00 Uhr mit Gourmet-Burgern, frischem Fisch und Weinen). Durchwahl 7.";
+    if (isIt) msg = "Il servizio in camera è attivo 24 ore su 24 (menu completo dalle 11:00 alle 23:00 con burger gourmet, pesce fresco e vini). Componga il tasto 7.";
     return {
       text: msg,
       isEscalation: false,
@@ -455,12 +468,13 @@ function generateLocalHotelResponse(message: string, kb: string, hotelName: stri
   }
 
   // Towels / Maintenance / Action in room
-  if (lower.includes("toalha") || lower.includes("limpeza") || lower.includes("avaria") || lower.includes("towel") || lower.includes("toalla") || lower.includes("serviette") || lower.includes("handtuch")) {
+  if (lower.includes("toalha") || lower.includes("limpeza") || lower.includes("avaria") || lower.includes("towel") || lower.includes("toalla") || lower.includes("serviette") || lower.includes("handtuch") || lower.includes("asciugaman") || lower.includes("pulizi")) {
     let msg = `O seu pedido para o quarto ${roomNumber || "do hóspede"} foi registado com sucesso no nosso sistema de governança! A nossa equipa já foi notificada para providenciar o que necessita com a maior brevidade.`;
     if (isEn) msg = `Your request for Room ${roomNumber || "guest room"} has been successfully dispatched to our housekeeping team! Our staff is attending to it promptly.`;
     if (isEs) msg = `¡Su solicitud para la habitación ${roomNumber || "del huésped"} ha sido registrada con éxito en gobernanta! Nuestro equipo ya ha sido notificado.`;
     if (isFr) msg = `Votre demande pour la chambre ${roomNumber || "du client"} a bien été transmise à notre équipe de gouvernance. Nous nous en occupons dans les plus brefs délais.`;
     if (isDe) msg = `Ihre Anfrage für Zimmer ${roomNumber || "des Gastes"} wurde erfolgreich an unser Housekeeping-Team weitergeleitet! Unser Personal kümmert sich umgehend darum.`;
+    if (isIt) msg = `La sua richiesta per la camera ${roomNumber || "del cliente"} è stata inoltrata con successo al nostro servizio pulizie! Il nostro staff se ne occuperà al più presto.`;
     return {
       text: msg,
       isEscalation: true,
