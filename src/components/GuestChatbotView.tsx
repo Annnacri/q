@@ -55,15 +55,19 @@ interface Message {
 
 interface GuestChatbotViewProps {
   hotelProfile: HotelProfile;
-  activeTickets: GuestTicket[];
-  onTicketCreated: (ticket: GuestTicket) => void;
-  onGoToDirectory: () => void;
-  onGoToStaffDesk: () => void;
+  activeTickets?: GuestTicket[];
+  currentLang?: SupportedLanguage;
+  onLanguageChange?: (lang: SupportedLanguage) => void;
+  onTicketCreated?: (ticket?: any) => void;
+  onGoToDirectory?: () => void;
+  onGoToStaffDesk?: () => void;
 }
 
 export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
   hotelProfile,
-  activeTickets,
+  activeTickets = [],
+  currentLang = "pt",
+  onLanguageChange,
   onTicketCreated,
   onGoToDirectory,
   onGoToStaffDesk
@@ -97,9 +101,16 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
   const [ttsEnabled, setTtsEnabled] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
+  // Sync when currentLang prop changes from top navbar
+  useEffect(() => {
+    if (currentLang && currentLang !== selectedLanguage) {
+      setSelectedLanguage(currentLang);
+    }
+  }, [currentLang]);
+
   // Sync when hotel profile default language changes
   useEffect(() => {
-    if (hotelProfile.defaultLanguage && hotelProfile.defaultLanguage !== selectedLanguage) {
+    if (hotelProfile.defaultLanguage && !currentLang) {
       setSelectedLanguage(hotelProfile.defaultLanguage);
     }
   }, [hotelProfile.defaultLanguage]);
@@ -313,7 +324,8 @@ export const GuestChatbotView: React.FC<GuestChatbotViewProps> = ({
     setTimeout(() => setCopiedWifi(false), 2000);
   };
 
-  const myRoomTickets = activeTickets.filter(t => t.roomNumber === roomNumber);
+  const safeTickets = Array.isArray(activeTickets) ? activeTickets : [];
+  const myRoomTickets = safeTickets.filter(t => t && t.roomNumber === roomNumber);
 
   const samplePrompts = getLocalizedPrompts(selectedLanguage);
   const ui = getLocalizedUI(selectedLanguage);

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Language, translations } from "../data/translations";
 import {
   Check,
   Sparkles,
@@ -6,7 +7,6 @@ import {
   Building2,
   Hotel,
   ShieldCheck,
-  HelpCircle,
   Calculator,
   ArrowRight,
   Gift,
@@ -14,12 +14,17 @@ import {
   Send,
   MessageCircle,
   FileCheck,
-  QrCode,
-  Headphones
+  Coins
 } from "lucide-react";
 
-export function PricingPlansView() {
+interface PricingPlansViewProps {
+  currentLang?: Language;
+  onSelectLanguage?: (lang: Language) => void;
+}
+
+export function PricingPlansView({ currentLang = "pt" }: PricingPlansViewProps) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
+  const [currency, setCurrency] = useState<"USD" | "EUR">("USD");
   const [roomCount, setRoomCount] = useState<number>(15);
   const [contactModalOpen, setContactModalOpen] = useState<boolean>(false);
   const [selectedPlanName, setSelectedPlanName] = useState<string>("Boutique Hotel");
@@ -32,628 +37,490 @@ export function PricingPlansView() {
     notes: ""
   });
 
-  // ROI Calculations for US Market
-  // Average US front desk wage: ~$20/hr. Concierge saves ~2.5 hrs/room/month of repetitive inquiries
-  const frontDeskSavings = Math.round(roomCount * 2.5 * 20);
-  // Average extra upsell revenue (late checkout + room service): ~$35/room/month
-  const upsellRevenue = Math.round(roomCount * 35);
+  const t = translations[currentLang] || translations.en;
+
+  const currencySymbol = currency === "USD" ? "$" : "€";
+
+  // ROI Calculations for US / EU Market
+  const hourlyWage = currency === "USD" ? 20 : 18;
+  const frontDeskSavings = Math.round(roomCount * 2.5 * hourlyWage);
+  const upsellPerRoom = currency === "USD" ? 35 : 32;
+  const upsellRevenue = Math.round(roomCount * upsellPerRoom);
   const totalValuePerMonth = frontDeskSavings + upsellRevenue;
-  const estimatedCost = roomCount <= 3 ? (billingCycle === "annual" ? 69 : 79) : roomCount <= 25 ? (billingCycle === "annual" ? 169 : 199) : (billingCycle === "annual" ? 379 : 449);
+  
+  const estimatedCostUSD = roomCount <= 3 ? (billingCycle === "annual" ? 69 : 79) : roomCount <= 25 ? (billingCycle === "annual" ? 169 : 199) : (billingCycle === "annual" ? 379 : 449);
+  const estimatedCostEUR = roomCount <= 3 ? (billingCycle === "annual" ? 65 : 75) : roomCount <= 25 ? (billingCycle === "annual" ? 159 : 189) : (billingCycle === "annual" ? 349 : 419);
+  const estimatedCost = currency === "USD" ? estimatedCostUSD : estimatedCostEUR;
   const netMonthlyROI = totalValuePerMonth - estimatedCost;
 
   const plans = [
     {
       id: "starter",
-      name: "Starter (Airbnb & STR)",
-      target: "Propriedades individuais & Pequenos Anfitriões (1 a 3 unidades)",
+      name: t.plans.starter.name,
+      target: t.plans.starter.target,
       icon: Zap,
-      monthlyPrice: 79,
-      annualPrice: 69,
-      setupFee: 299,
-      highlight: false,
-      badge: "Ideal para Airbnb / VRBO",
-      features: [
-        "1 a 3 Unidades / Quartos",
-        "IA Multilíngue 24/7 (6 Idiomas)",
-        "QR Codes Digitais para os Quartos",
-        "Pedidos Básicos de Hóspedes (Toalhas/Wi-Fi)",
-        "Guia Local & Horários Automatizados",
-        "Suporte por Email & Atualizações"
-      ],
-      setupDetails: "Carregamento das regras de alojamento, pass de Wi-Fi e QR Codes em PDF."
+      monthlyPriceUSD: 79,
+      annualPriceUSD: 69,
+      monthlyPriceEUR: 75,
+      annualPriceEUR: 65,
+      setupFeeUSD: billingCycle === "annual" ? 0 : 199,
+      setupFeeEUR: billingCycle === "annual" ? 0 : 180,
+      description: t.plans.starter.desc,
+      features: t.plans.starter.features,
+      ctaText: t.plans.starter.cta,
+      popular: false,
+      stripeLink: "https://buy.stripe.com/test_starter"
     },
     {
       id: "boutique",
-      name: "Boutique Hotel",
-      target: "Hotéis de charme, Pousadas & B&Bs (4 a 25 quartos)",
+      name: t.plans.boutique.name,
+      target: t.plans.boutique.target,
       icon: Hotel,
-      monthlyPrice: 199,
-      annualPrice: 169,
-      setupFee: 499,
-      highlight: true,
-      badge: "⭐ Mais Popular nos EUA",
-      features: [
-        "Até 25 Quartos / Acomodações",
-        "IA Autônoma com Voz & Chat em Tempo Real",
-        "Painel de Staff & Fila de Tickets em Tempo Real",
-        "Catálogo de Room Service & Upselling Ativo",
-        "PIN de Segurança para a Equipa de Receção",
-        "Widget de 1 linha para o Website do Hotel",
-        "Cartões de Quarto em PDF de Alta Resolução",
-        "Treino da IA com o Menu e Regras do Hotel"
-      ],
-      setupDetails: "Afinação rigorosa da IA, catálogo de F&B, instalação do widget e design de QR codes."
+      monthlyPriceUSD: 199,
+      annualPriceUSD: 169,
+      monthlyPriceEUR: 189,
+      annualPriceEUR: 159,
+      setupFeeUSD: billingCycle === "annual" ? 0 : 299,
+      setupFeeEUR: billingCycle === "annual" ? 0 : 275,
+      description: t.plans.boutique.desc,
+      features: t.plans.boutique.features,
+      ctaText: t.plans.boutique.cta,
+      popular: true,
+      stripeLink: "https://buy.stripe.com/test_boutique"
     },
     {
       id: "enterprise",
-      name: "Resort & Enterprise",
-      target: "Hotéis de luxo, Resorts ou Portfólios de 25+ propriedades",
+      name: t.plans.enterprise.name,
+      target: t.plans.enterprise.target,
       icon: Building2,
-      monthlyPrice: 449,
-      annualPrice: 379,
-      setupFee: 1499,
-      highlight: false,
-      badge: "Escalabilidade Máxima",
-      features: [
-        "Quartos e Unidades Ilimitadas",
-        "Totalmente White-Label (Marca, Cores e Domínio)",
-        "Integração REST API para WhatsApp & PMS",
-        "Múltiplos Perfis de Acesso para Departamentos",
-        "Relatórios Mensais de Pedidos & Faturação",
-        "Onboarding com a Equipa de Receção",
-        "Gestor de Conta Dedicado & SLA 99.9%"
-      ],
-      setupDetails: "Integração customizada com API/PMS, formação da equipa e branding personalizado."
+      monthlyPriceUSD: 449,
+      annualPriceUSD: 379,
+      monthlyPriceEUR: 419,
+      annualPriceEUR: 349,
+      setupFeeUSD: billingCycle === "annual" ? 0 : 499,
+      setupFeeEUR: billingCycle === "annual" ? 0 : 450,
+      description: t.plans.enterprise.desc,
+      features: t.plans.enterprise.features,
+      ctaText: t.plans.enterprise.cta,
+      popular: false,
+      stripeLink: "https://buy.stripe.com/test_enterprise"
     }
   ];
 
-  const handleOpenContact = (planName: string) => {
+  const handleOpenCheckoutOrContact = (planName: string) => {
     setSelectedPlanName(planName);
-    setFormSubmitted(false);
     setContactModalOpen(true);
+    setFormSubmitted(false);
   };
 
-  const handleSubmitForm = (e: React.FormEvent) => {
+  const handleSubmitContact = (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitted(true);
   };
 
   return (
-    <div className="space-y-10 pb-16">
-      {/* 1. MODEL / SHOWCASE CLARIFICATION BANNER */}
-      <div className="bg-linear-to-r from-indigo-900 via-slate-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-indigo-500/30 relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="max-w-3xl relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            Modelo de Demonstração Interativo
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Transforme o atendimento do seu hotel com um Concierge de IA 24/7
-          </h2>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            O <strong>Grand Marina Resort & Spa</strong> apresentado nesta plataforma é um <span className="text-amber-300 font-semibold">modelo de demonstração ao vivo</span>. 
-            Adaptamos e configuramos uma instância 100% personalizada com o nome, logótipo, ementa de restaurante, regras de Wi-Fi e comodidades da sua unidade em menos de <strong>48 horas</strong>.
-          </p>
-          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-300">
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-400" /> Sem fidelização obrigatória
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-400" /> Setup completo em 48h
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-400" /> Suporte em 6 idiomas (PT, EN, ES, FR, DE, IT)
-            </span>
-          </div>
+    <div className="space-y-12 max-w-6xl mx-auto py-4">
+      {/* 1. HEADER SECTION */}
+      <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <Sparkles className="w-4 h-4" />
+          <span>{t.trialNotice}</span>
         </div>
-      </div>
-
-      {/* 2. BILLING TOGGLE */}
-      <div className="text-center space-y-4">
-        <h3 className="text-2xl font-bold text-gray-900">
-          Planos Transparentes para Qualquer Dimensão
-        </h3>
-        <p className="text-sm text-gray-600 max-w-xl mx-auto">
-          Escolha o plano ideal para a sua propriedade. Poupe até 20% e ganhe a <strong>Taxa de Instalação 100% Gratuita</strong> na subscrição anual.
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          {t.pricingTitle}
+        </h1>
+        <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          {t.pricingSubtitle}
         </p>
 
-        {/* Toggle Switch */}
-        <div className="inline-flex items-center bg-gray-200 p-1.5 rounded-xl text-xs font-semibold">
-          <button
-            onClick={() => setBillingCycle("monthly")}
-            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              billingCycle === "monthly"
-                ? "bg-white text-gray-900 shadow-xs font-bold"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            Faturação Mensal
-          </button>
-          <button
-            onClick={() => setBillingCycle("annual")}
-            className={`px-4 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-              billingCycle === "annual"
-                ? "bg-indigo-600 text-white shadow-xs font-bold"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            <span>Faturação Anual</span>
-            <span className="px-1.5 py-0.5 bg-amber-400 text-amber-950 text-[10px] font-extrabold rounded-full">
-              Poupe 20% + Setup Grátis
-            </span>
-          </button>
+        {/* Currency and Billing Period Switchers */}
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+          {/* Currency Switcher */}
+          <div className="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
+            <button
+              onClick={() => setCurrency("USD")}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                currency === "USD"
+                  ? "bg-emerald-500 text-slate-950 shadow-xs"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              $ USD (United States & Global)
+            </button>
+            <button
+              onClick={() => setCurrency("EUR")}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                currency === "EUR"
+                  ? "bg-emerald-500 text-slate-950 shadow-xs"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              € EUR (Portugal & Europe)
+            </button>
+          </div>
+
+          {/* Billing Cycle Toggle */}
+          <div className="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
+            <button
+              onClick={() => setBillingCycle("monthly")}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                billingCycle === "monthly"
+                  ? "bg-indigo-600 text-white shadow-xs"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              {t.monthlyBilling}
+            </button>
+            <button
+              onClick={() => setBillingCycle("annual")}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                billingCycle === "annual"
+                  ? "bg-indigo-600 text-white shadow-xs"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <span>{t.annualBilling}</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-400 text-slate-950 font-extrabold">
+                {t.saveBadge}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 3. PRICING CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+      {/* 2. PRICING CARDS GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
         {plans.map((plan) => {
-          const IconComponent = plan.icon;
-          const currentPrice = billingCycle === "annual" ? plan.annualPrice : plan.monthlyPrice;
+          const PlanIcon = plan.icon;
+          const displayPrice =
+            currency === "USD"
+              ? (billingCycle === "annual" ? plan.annualPriceUSD : plan.monthlyPriceUSD)
+              : (billingCycle === "annual" ? plan.annualPriceEUR : plan.monthlyPriceEUR);
+
+          const setupFee =
+            currency === "USD" ? plan.setupFeeUSD : plan.setupFeeEUR;
 
           return (
             <div
               key={plan.id}
-              className={`rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all relative ${
-                plan.highlight
-                  ? "bg-white border-2 border-indigo-600 shadow-xl ring-4 ring-indigo-100"
-                  : "bg-white border border-gray-200 shadow-xs hover:border-gray-300"
+              className={`relative rounded-2xl p-7 flex flex-col justify-between transition-all ${
+                plan.popular
+                  ? "bg-slate-800/90 border-2 border-indigo-500 shadow-xl shadow-indigo-500/10 ring-4 ring-indigo-500/10"
+                  : "bg-slate-800/50 border border-slate-700/80 hover:border-slate-600"
               }`}
             >
-              {plan.badge && (
-                <div
-                  className={`absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap shadow-xs ${
-                    plan.highlight
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-800 text-gray-100"
-                  }`}
-                >
-                  {plan.badge}
+              {plan.popular && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[11px] font-extrabold px-3.5 py-1 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  <span>{t.planPopularBadge}</span>
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-5">
+                {/* Header */}
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      plan.highlight
-                        ? "bg-indigo-100 text-indigo-700"
-                        : "bg-gray-100 text-gray-700"
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold ${
+                      plan.popular
+                        ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/30"
+                        : "bg-slate-700 text-slate-300"
                     }`}
                   >
-                    <IconComponent className="w-5 h-5" />
+                    <PlanIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 text-lg leading-tight">
+                    <h3 className="font-extrabold text-lg text-white">
                       {plan.name}
-                    </h4>
-                    <p className="text-xs text-gray-500 line-clamp-1">
+                    </h3>
+                    <p className="text-[11px] text-slate-400 font-medium">
                       {plan.target}
                     </p>
                   </div>
                 </div>
 
-                {/* Price Display */}
-                <div className="pt-2 pb-1 border-b border-gray-100">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-gray-900">
-                      ${currentPrice}
-                    </span>
-                    <span className="text-xs text-gray-500 font-medium">
-                      / mês (USD)
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1 flex items-center justify-between">
-                    <span>
-                      {billingCycle === "annual"
-                        ? `Cobrado anualmente ($${currentPrice * 12}/ano)`
-                        : "Sem fidelização, cancele quando quiser"}
-                    </span>
-                  </div>
+                <p className="text-xs text-slate-300 leading-relaxed min-h-[36px]">
+                  {plan.description}
+                </p>
 
-                  {/* Setup fee info */}
-                  <div className="mt-2.5 p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs flex items-center justify-between">
-                    <span className="text-gray-600 font-medium">
-                      Taxa de Instalação (Setup):
+                {/* Price Display */}
+                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-3xl font-extrabold text-white tracking-tight">
+                      {currencySymbol}{displayPrice}
                     </span>
-                    {billingCycle === "annual" ? (
-                      <span className="font-bold text-emerald-600 flex items-center gap-1">
-                        <span className="line-through text-gray-400 font-normal">
-                          ${plan.setupFee}
-                        </span>
-                        GRÁTIS 🎁
-                      </span>
-                    ) : (
-                      <span className="font-bold text-gray-900">
-                        +${plan.setupFee} único
-                      </span>
-                    )}
+                    <span className="text-xs text-slate-400 font-medium">
+                      {t.monthlyPerUnit}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-slate-400">
+                      {billingCycle === "annual" ? t.billedAnnually : t.billedMonthly}
+                    </span>
+                    <span className="font-bold text-slate-300">
+                      {t.setupFeeLabel}{" "}
+                      {setupFee === 0 ? (
+                        <span className="text-emerald-400 font-extrabold">{t.freeSetupBadge}</span>
+                      ) : (
+                        `${currencySymbol}${setupFee}`
+                      )}
+                    </span>
                   </div>
                 </div>
 
-                {/* Feature List */}
+                {/* Feature checklist */}
                 <div className="space-y-2.5 pt-2">
-                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    O que está incluído:
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    {t.plans.starter.name.split(" ")[0]} Features:
                   </p>
-                  <ul className="space-y-2 text-xs text-gray-600">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {plan.features.map((feat, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs text-slate-200">
+                      <div className="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3 h-3" />
+                      </div>
+                      <span className="leading-snug">{feat}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="pt-6 mt-6 border-t border-gray-100">
+              <div className="pt-6 space-y-2">
                 <button
-                  onClick={() => handleOpenContact(plan.name)}
-                  className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    plan.highlight
-                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200"
-                      : "bg-gray-900 hover:bg-black text-white"
+                  onClick={() => handleOpenCheckoutOrContact(plan.name)}
+                  className={`w-full py-3 px-4 rounded-xl font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md ${
+                    plan.popular
+                      ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30"
+                      : "bg-slate-700 hover:bg-slate-600 text-white"
                   }`}
                 >
-                  <span>Solicitar Onboarding / Instalação</span>
+                  <span>{plan.ctaText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
+                <p className="text-[10px] text-center text-slate-400">
+                  {t.noCommitment}
+                </p>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* 4. SETUP FEE BREAKDOWN: Why is there an onboarding fee? */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 shadow-xs space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 uppercase tracking-wider">
-              <FileCheck className="w-4 h-4" />
-              Processo de Configuração Profissional
+      {/* 3. ROI CALCULATOR INTERACTIVE COMPONENT */}
+      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-700/60">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
+              <Calculator className="w-5 h-5" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900">
-              O que inclui a Taxa de Instalação e Onboarding Único?
-            </h3>
-            <p className="text-xs sm:text-sm text-gray-600">
-              Não entregamos apenas código. Configuramos toda a infraestrutura para o seu hotel começar a faturar e poupar trabalho imediatamente.
-            </p>
+            <div>
+              <h3 className="font-extrabold text-lg text-white">
+                {t.roiTitle}
+              </h3>
+              <p className="text-xs text-slate-400">
+                {t.roiSubtitle}
+              </p>
+            </div>
           </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 max-w-sm shrink-0">
-            <div className="font-bold flex items-center gap-1.5 text-amber-950 mb-1">
-              <Gift className="w-4 h-4 text-amber-600" /> Bónus de Instalação
-            </div>
-            Ao escolher qualquer <strong>Plano Anual</strong>, a taxa de instalação é <strong>100% gratuita</strong> (poupança direta de até $1,499).
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-              1
-            </div>
-            <h4 className="font-bold text-gray-900 text-sm">Carregamento da Base</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Inserimos todas as políticas do seu hotel, horários de refeições, comodidades, Wi-Fi e números de emergência.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-              2
-            </div>
-            <h4 className="font-bold text-gray-900 text-sm">Afinação Rigorosa da IA</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Configuramos a IA para nunca inventar regras e responder exatamente no tom e idioma correto de cada hóspede.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-              3
-            </div>
-            <h4 className="font-bold text-gray-900 text-sm">Cartões com QR Code</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Criamos ficheiros PDF prontos para impressão em acrílico para as mesinhas de cabeceira e secretárias dos quartos.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-              4
-            </div>
-            <h4 className="font-bold text-gray-900 text-sm">Widget & Formação</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Auxiliamos na colocação do widget no website do hotel e explicamos à equipa como gerir os tickets de serviço.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 5. INTERACTIVE ROI CALCULATOR (US MARKET) */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">
-              <Calculator className="w-4 h-4" />
-              Calculadora de Retorno (ROI) para o Mercado dos EUA
-            </div>
-            <h3 className="text-2xl font-bold text-white">
-              Quanto dinheiro e tempo poupa o seu alojamento por mês?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-400">
-              Baseado no custo médio horário de atendimento nos EUA ($20/hora) e aumento de 15% em pedidos de Room Service.
-            </p>
+          <div className="flex items-center gap-2">
+            <Coins className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-bold text-amber-400">
+              {currency === "USD" ? "Calculated in USD ($)" : "Calculado em EUR (€)"}
+            </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
           {/* Slider Controls */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm font-semibold">
-                <span className="text-slate-300">Número de Quartos ou Unidades de Alojamento:</span>
-                <span className="text-indigo-400 font-extrabold text-lg px-3 py-1 bg-indigo-950/60 border border-indigo-500/40 rounded-lg">
-                  {roomCount} {roomCount === 1 ? "quarto" : "quartos"}
-                </span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="60"
-                value={roomCount}
-                onChange={(e) => setRoomCount(parseInt(e.target.value))}
-                className="w-full h-2.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-              <div className="flex justify-between text-[10px] text-slate-500">
-                <span>1 quarto (Airbnb)</span>
-                <span>15 quartos (Boutique)</span>
-                <span>35 quartos (Hotel)</span>
-                <span>60+ quartos (Resort)</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-slate-800/70 border border-slate-700/60">
-                <div className="text-xs text-slate-400">Horas de receção poupadas:</div>
-                <div className="text-xl font-extrabold text-emerald-400 mt-1">
-                  ~{Math.round(roomCount * 2.5)} horas / mês
-                </div>
-                <div className="text-[11px] text-slate-400 mt-1">
-                  Redução de 75% em chamadas repetitivas
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-800/70 border border-slate-700/60">
-                <div className="text-xs text-slate-400">Vendas extras de Room Service:</div>
-                <div className="text-xl font-extrabold text-amber-400 mt-1">
-                  +${upsellRevenue} / mês
-                </div>
-                <div className="text-[11px] text-slate-400 mt-1">
-                  Late checkout, refeições e spa
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Result Card */}
-          <div className="lg:col-span-5 bg-linear-to-b from-indigo-900/60 to-slate-800/90 rounded-2xl p-6 border border-indigo-500/30 text-center space-y-4">
-            <div className="text-xs font-semibold uppercase text-indigo-300 tracking-wider">
-              Benefício Financeiro Total Estimado
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-white">
-              ${totalValuePerMonth.toLocaleString()}
-              <span className="text-xs font-normal text-slate-400 block mt-1">
-                / mês em valor gerado & poupança direta
+          <div className="space-y-4 lg:col-span-1 bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-300">
+                {t.roomCountLabel}
+              </label>
+              <span className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm font-extrabold">
+                {roomCount} {currentLang === "pt" ? "Quartos" : currentLang === "es" ? "Habitaciones" : currentLang === "fr" ? "Chambres" : currentLang === "de" ? "Zimmer" : currentLang === "it" ? "Camere" : "Rooms"}
               </span>
             </div>
 
-            <div className="pt-2 pb-2 border-t border-indigo-500/20 text-xs text-slate-300 flex justify-between">
-              <span>Custo do Software:</span>
-              <span className="font-semibold text-white">${estimatedCost}/mês</span>
+            <input
+              type="range"
+              min="2"
+              max="100"
+              step="1"
+              value={roomCount}
+              onChange={(e) => setRoomCount(Number(e.target.value))}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              {t.roiExplanation}
+            </p>
+          </div>
+
+          {/* Results Summary Box */}
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 space-y-1">
+              <p className="text-[11px] text-slate-400 font-medium">
+                {t.frontDeskSavingsLabel}
+              </p>
+              <p className="text-xl font-extrabold text-emerald-400">
+                +{currencySymbol}{frontDeskSavings.toLocaleString()}/mo
+              </p>
+              <p className="text-[10px] text-slate-400">~{Math.round(roomCount * 2.5)}h staff time saved</p>
             </div>
 
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-bold">
-              Retorno Líquido (ROI): +${netMonthlyROI.toLocaleString()} / mês
+            <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 space-y-1">
+              <p className="text-[11px] text-slate-400 font-medium">
+                {t.upsellRevenueLabel}
+              </p>
+              <p className="text-xl font-extrabold text-indigo-400">
+                +{currencySymbol}{upsellRevenue.toLocaleString()}/mo
+              </p>
+              <p className="text-[10px] text-slate-400">F&B, Tours & Late Checkout</p>
             </div>
 
-            <button
-              onClick={() => handleOpenContact(`Simulação ROI (${roomCount} Quartos)`)}
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Quero Implementar no Meu Hotel</span>
-            </button>
+            <div className="bg-emerald-950/40 p-4 rounded-xl border border-emerald-500/30 space-y-1">
+              <p className="text-[11px] text-emerald-300 font-bold">
+                {t.netRoiLabel}
+              </p>
+              <p className="text-2xl font-extrabold text-emerald-300">
+                +{currencySymbol}{netRoiLabelValue(netMonthlyROI)}/mo
+              </p>
+              <p className="text-[10px] text-emerald-400/80 font-medium">
+                Cost: {currencySymbol}{estimatedCost}/mo • ~{Math.round((totalValuePerMonth / (estimatedCost || 1)) * 10) / 10}x ROI
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 6. FAQ SECTION */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 shadow-xs space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 uppercase tracking-wider">
-            <HelpCircle className="w-4 h-4" /> Perguntas Frequentes
-          </div>
-          <h3 className="text-xl font-bold text-gray-900">
-            Dúvidas Comuns sobre o Grand Concierge AI
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          <div className="space-y-1.5">
-            <h4 className="font-bold text-gray-900 text-sm">
-              Quanto tempo demora a colocar o sistema a funcionar?
-            </h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              O onboarding é concluído habitualmente em 24 a 48 horas. Só precisamos que nos envie as regras do hotel, horários, pass de Wi-Fi e o cardápio de restaurante.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <h4 className="font-bold text-gray-900 text-sm">
-              O hóspede precisa de descarregar alguma aplicação?
-            </h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Não. O hóspede apenas aponta a câmara do telemóvel para o QR Code da mesinha de cabeceira e o Concierge abre imediatamente no navegador, sem logins ou downloads.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <h4 className="font-bold text-gray-900 text-sm">
-              A IA pode inventar respostas ou prometer coisas erradas?
-            </h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Não. A nossa arquitetura utiliza uma base restrita (Grounded Knowledge Base). A IA está estritamente programada para responder apenas com base nas políticas oficiais do seu alojamento.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <h4 className="font-bold text-gray-900 text-sm">
-              Como funciona o cancelamento do serviço?
-            </h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Nos planos mensais não existe fidelização; pode cancelar em qualquer momento. Nos planos anuais, beneficia do desconto de 20% e da taxa de instalação gratuita.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 7. CONTACT / ONBOARDING MODAL */}
+      {/* 4. MODAL: ONBOARDING & PILOT REQUEST */}
       {contactModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-gray-100 relative">
-            <button
-              onClick={() => setContactModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
-            >
-              ✕
-            </button>
-
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-slate-100">
             {!formSubmitted ? (
-              <form onSubmit={handleSubmitForm} className="space-y-4">
+              <>
                 <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" /> Solicitação de Instalação
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-1">
+                    <Gift className="w-3.5 h-3.5" />
+                    <span>{selectedPlanName} • {t.trialDays}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Começar Onboarding: {selectedPlanName}
+                  <h3 className="text-xl font-bold text-white">
+                    {t.modalTitle}
                   </h3>
-                  <p className="text-xs text-gray-500">
-                    Preencha os dados da sua propriedade e entraremos em contacto em menos de 2 horas para iniciar a personalização.
+                  <p className="text-xs text-slate-400">
+                    {t.modalSubtitle}
                   </p>
                 </div>
 
-                <div className="space-y-3 pt-2">
+                <form onSubmit={handleSubmitContact} className="space-y-3.5 text-xs">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Nome do Hotel ou Propriedade:
+                    <label className="font-semibold text-slate-300 block mb-1">
+                      {t.modalHotelName} *
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Sunset Palm Boutique Hotel"
+                      placeholder="e.g. Grand Marina Hotel"
                       value={contactData.hotelName}
                       onChange={(e) => setContactData({ ...contactData, hotelName: e.target.value })}
-                      className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
-                        Seu Nome / Cargo:
+                      <label className="font-semibold text-slate-300 block mb-1">
+                        {t.modalContactName} *
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="Ex: Maria Santos (Manager)"
+                        placeholder="Your Name"
                         value={contactData.contactName}
                         onChange={(e) => setContactData({ ...contactData, contactName: e.target.value })}
-                        className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
-                        Telefone / WhatsApp:
+                      <label className="font-semibold text-slate-300 block mb-1">
+                        {t.modalPhone} *
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="Ex: +1 (555) 019-2834"
+                        placeholder="+351 912 345 678"
                         value={contactData.phone}
                         onChange={(e) => setContactData({ ...contactData, phone: e.target.value })}
-                        className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Email Corporativo:
+                    <label className="font-semibold text-slate-300 block mb-1">
+                      {t.modalEmail} *
                     </label>
                     <input
                       type="email"
                       required
-                      placeholder="gerencia@seuhotel.com"
+                      placeholder="manager@hotel.com"
                       value={contactData.email}
                       onChange={(e) => setContactData({ ...contactData, email: e.target.value })}
-                      className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Notas adicionais ou número de quartos:
+                    <label className="font-semibold text-slate-300 block mb-1">
+                      {t.modalNotes}
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Ex: Temos 18 quartos e queremos integrar com a ementa do bar de praia."
+                      placeholder="Number of rooms, current PMS or specific requests..."
                       value={contactData.notes}
                       onChange={(e) => setContactData({ ...contactData, notes: e.target.value })}
-                      className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500"
                     />
                   </div>
-                </div>
 
-                <div className="pt-2 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setContactModalOpen(false)}
-                    className="w-1/3 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="w-2/3 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Enviar e Iniciar Setup</span>
-                  </button>
-                </div>
-              </form>
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setContactModalOpen(false)}
+                      className="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                    >
+                      {t.cancelBtn}
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md shadow-indigo-600/30 flex items-center justify-center gap-1.5"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{t.modalSubmit}</span>
+                    </button>
+                  </div>
+                </form>
+              </>
             ) : (
               <div className="text-center py-6 space-y-4">
-                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                  <Check className="w-7 h-7" />
+                <div className="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mx-auto">
+                  <FileCheck className="w-7 h-7" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Solicitação Recebida com Sucesso!
-                  </h3>
-                  <p className="text-xs text-gray-600 max-w-sm mx-auto">
-                    Obrigado, <strong>{contactData.contactName || "Gestor"}</strong>. A nossa equipa de engenharia e onboarding do <strong>Grand Concierge AI</strong> entrará em contacto através do email <strong>{contactData.email}</strong> nas próximas 2 horas para iniciar a configuração da sua propriedade.
-                  </p>
+                <h3 className="text-xl font-bold text-white">
+                  {t.modalSuccessTitle}
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
+                  {t.modalSuccessDesc}
+                </p>
+                <div className="pt-4">
+                  <button
+                    onClick={() => setContactModalOpen(false)}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                  >
+                    {t.modalClose}
+                  </button>
                 </div>
-                <button
-                  onClick={() => setContactModalOpen(false)}
-                  className="py-2.5 px-6 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl cursor-pointer"
-                >
-                  Fechar
-                </button>
               </div>
             )}
           </div>
@@ -661,4 +528,8 @@ export function PricingPlansView() {
       )}
     </div>
   );
+}
+
+function netRoiLabelValue(val: number): string {
+  return val.toLocaleString();
 }
