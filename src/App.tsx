@@ -74,8 +74,17 @@ export function App() {
     { code: "es", name: "Español", flag: "🇪🇸" },
     { code: "fr", name: "Français", flag: "🇫🇷" },
     { code: "de", name: "Deutsch", flag: "🇩🇪" },
-    { code: "it", name: "Italiano", flag: "🇮🇹" }
+    { code: "it", name: "Italiano", flag: "🇮🇹" },
+    { code: "ar", name: "العربية", flag: "🇸🇦" }
   ];
+
+  // Sync document direction and language for RTL support
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+      document.documentElement.lang = currentLang;
+    }
+  }, [currentLang]);
 
   // Fetch or sync tickets from server / local storage
   const fetchTickets = async () => {
@@ -153,7 +162,10 @@ export function App() {
   const pendingTicketsCount = safeTicketsList.filter((t) => t && t.status === "pending").length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+    <div
+      dir={currentLang === "ar" ? "rtl" : "ltr"}
+      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white"
+    >
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 border-b border-indigo-500/20 px-4 py-2 text-center text-xs flex items-center justify-center gap-2">
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -170,6 +182,8 @@ export function App() {
             ? "Mehrsprachiger KI-Concierge für Hotels & Ferienwohnungen — 14 Tage kostenlos testen."
             : currentLang === "it"
             ? "Assistente IA Multilingue per Hotel e B&B — Prova gratuita di 14 giorni."
+            : currentLang === "ar"
+            ? "مساعد الكونسيرج الذكي متعدد اللغات للفنادق والشقق الفندقية — تجربة مجانية لمدة 14 يوماً."
             : "Multilingual AI Concierge for Hotels & Luxury Rentals — 14-Day Free Pilot."}
         </span>
         <button
@@ -418,11 +432,23 @@ export function App() {
       {/* 4. FOOTER */}
       <footer className="border-t border-slate-800 bg-slate-950 py-6 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 Grand Concierge AI SaaS. Built for Luxury Hotels, STRs & Boutique B&Bs.</p>
+          <p>{t.footerRights}</p>
           <div className="flex items-center gap-4 text-slate-400">
-            <span>6 Idiomas Nativos (PT, EN, ES, FR, DE, IT)</span>
+            <span>
+              {currentLang === "ar"
+                ? "7 لغات أصلية مع دعم كامل للاتجاه RTL"
+                : currentLang === "pt"
+                ? "7 Idiomas Nativos (PT, EN, ES, FR, DE, IT, AR)"
+                : "7 Native Languages (PT, EN, ES, FR, DE, IT, AR)"}
+            </span>
             <span>•</span>
-            <span>Atendimento 24/7 Autônomo</span>
+            <span>
+              {currentLang === "ar"
+                ? "خدمة فندقية ذاتية 24/7"
+                : currentLang === "pt"
+                ? "Atendimento 24/7 Autônomo"
+                : "24/7 Autonomous Operations"}
+            </span>
           </div>
         </div>
       </footer>

@@ -1,4 +1,4 @@
-export type SupportedLanguage = "pt" | "en" | "es" | "fr" | "de" | "it";
+export type SupportedLanguage = "pt" | "en" | "es" | "fr" | "de" | "it" | "ar";
 
 export interface LanguageOption {
   code: SupportedLanguage;
@@ -15,6 +15,7 @@ export const SUPPORTED_LANGUAGES: LanguageOption[] = [
   { code: "fr", label: "Français", flag: "🇫🇷", nativeName: "Français", locale: "fr-FR" },
   { code: "de", label: "Deutsch", flag: "🇩🇪", nativeName: "Deutsch", locale: "de-DE" },
   { code: "it", label: "Italiano", flag: "🇮🇹", nativeName: "Italiano", locale: "it-IT" },
+  { code: "ar", label: "العربية", flag: "🇸🇦", nativeName: "العربية", locale: "ar-SA" },
 ];
 
 export interface HotelProfile {
@@ -121,6 +122,8 @@ export function getDefaultGreeting(hotelName: string, lang: SupportedLanguage, c
       return `Guten Tag! Ich bin der virtuelle 24/7-Concierge des ${hotelName}. Wie kann ich Ihren Aufenthalt heute noch angenehmer gestalten? Ich helfe Ihnen gerne bei WLAN, Essenszeiten, Pool & Spa, zusätzlichen Handtüchern, Zimmerservice oder spätem Check-out.`;
     case "it":
       return `Buongiorno! Sono il concierge virtuale 24/7 del ${hotelName}. Come posso aiutarla oggi? Posso fornirle informazioni su Wi-Fi, orari dei pasti, piscina e spa, asciugamani extra, servizio in camera o late check-out.`;
+    case "ar":
+      return `مرحباً بك! أنا الكونسيرج الافتراضي على مدار 24/7 لـ ${hotelName}. كيف يمكنني مساعدتك اليوم؟ يمكنني مساعدتك في بيانات الواي فاي، مواعيد الوجبات، المسبح والسبا، طلب مناشف إضافية، خدمة الغرف، أو تسجيل المغادرة المتأخر.`;
     case "pt":
     default:
       return `Olá! Sou o assistente virtual 24/7 do ${hotelName}. Como posso tornar a sua estadia mais confortável hoje? Posso ajudar com Wi-Fi, horários de refeições, piscina e spa, pedidos de toalhas e serviço de quarto, ou late check-out.`;
@@ -183,6 +186,16 @@ export function getLocalizedPrompts(lang: SupportedLanguage): LocalizedPrompt[] 
         { label: "🚗 Ricarica Elettrica", prompt: "Il parcheggio dell'hotel dispone di colonnine per auto elettriche?" },
         { label: "🐾 Animali Domestici", prompt: "Qual è la politica dell'hotel riguardo agli animali domestici?" },
         { label: "🛎️ Asciugamani Extra (Ticket)", prompt: "Posso avere 2 asciugamani da bagno extra in camera, per favore?" }
+      ];
+    case "ar":
+      return [
+        { label: "📶 شبكة الواي فاي", prompt: "ما هو اسم شبكة الواي فاي وكيف يمكنني الاتصال بها؟" },
+        { label: "🥐 مواعيد الإفطار", prompt: "في أي وقت يُقدم الإفطار وأين يقع المطعم؟" },
+        { label: "⏰ تسجيل مغادرة متأخر", prompt: "هل يمكنني طلب مغادرة متأخرة وما هي الرسوم؟" },
+        { label: "🏊 المسبح والسبا", prompt: "ما هي مواعيد عمل المسبح المدفأ والسبا؟" },
+        { label: "🚗 شحن السيارات الكهربائية", prompt: "هل تتوفر في مواقف الفندق محطات شحن للسيارات الكهربائية؟" },
+        { label: "🐾 الحيوانات الأليفة", prompt: "ما هي سياسة الفندق بشأن الحيوانات الأليفة؟" },
+        { label: "🛎️ مناشف إضافية (طلب)", prompt: "هل يمكنني طلب منشفتين إضافيتين للغرفة من فضلك؟" }
       ];
     case "pt":
     default:
@@ -373,6 +386,35 @@ export function getLocalizedUI(lang: SupportedLanguage): LocalizedUIStrings {
         viewDeskBtn: "Vedi Reception Desk →",
         roomLabel: "Camera",
         onlineBadge: "Concierge Online"
+      };
+    case "ar":
+      return {
+        quickServices: "خدمات الغرفة السريعة",
+        wifiAccess: "شبكة الواي فاي ورمز QR",
+        wifiSubtitle: "بيانات الشبكة والاتصال",
+        towelsHousekeeping: "طلب مناشف وتنظيف",
+        towelsSubtitle: "توصيل مباشر إلى الغرفة",
+        lateCheckout: "طلب تسجيل مغادرة متأخر",
+        lateCheckoutSubtitle: "تمديد الإقامة حتى 2 ظهراً أو 6 مساءً",
+        roomService: "قائمة طعام خدمة الغرف",
+        roomServiceSubtitle: "مأكولات، وجبات خفيفة ومشروبات",
+        hotelDirectory: "دليل الفندق ومعلومات التواصل",
+        hotelDirectorySubtitle: "أرقام التحويلات، السبا والمواعيد",
+        activeTickets: "طلباتي النشطة",
+        inputPlaceholder: "اكتب سؤالك أو طلبك هنا (مثل: الواي فاي، مناشف، الإفطار، المغادرة)...",
+        listeningPlaceholder: "جاري الاستماع لصوتك...",
+        suggestionsTitle: "اقتراحات سريعة:",
+        voiceActive: "الصوت مفعل",
+        voiceMute: "كتم الصوت",
+        todayBadge: "اليوم • كونسيرج رقمي 24/7",
+        thinkingText: "يقوم HotelAI بمراجعة بيانات الفندق...",
+        verifiedBadge: "موثق",
+        staffNotifiedBadge: "تم إخطار الموظفين",
+        ticketRegistered: "تم تسجيل طلبك:",
+        viewInDesk: "عرض في اللوحة",
+        viewDeskBtn: "عرض لوحة الاستقبال ←",
+        roomLabel: "الغرفة",
+        onlineBadge: "الكونسيرج متصل"
       };
     case "pt":
     default:
